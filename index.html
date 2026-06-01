@@ -1,0 +1,706 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Talonario Pro v2</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+--slate-50:#f8fafc;--slate-100:#f1f5f9;--slate-200:#e2e8f0;--slate-300:#cbd5e1;
+--slate-400:#94a3b8;--slate-500:#64748b;--slate-600:#475569;--slate-650:#3b4a5f;
+--slate-700:#334155;--slate-750:#2a3648;--slate-800:#1e293b;--slate-900:#0f172a;
+--slate-950:#020617;
+--blue-400:#60a5fa;--blue-500:#3b82f6;--blue-600:#2563eb;--blue-800:#1e40af;--blue-950:#172554;
+--emerald-400:#34d399;--emerald-500:#10b981;--emerald-600:#059669;--emerald-950:#022c22;
+--orange-300:#fdba74;--orange-400:#fb923c;--orange-500:#f97316;--orange-600:#ea580c;--orange-950:#431407;
+--amber-400:#fbbf24;--amber-500:#f59e0b;--amber-950:#451a03;
+--rose-300:#fda4af;--rose-400:#fb7185;--rose-500:#f43f5e;--rose-600:#e11d48;--rose-800:#9f1239;--rose-900:#881337;--rose-950:#4c0519;
+--yellow-400:#facc15;
+--green-wa:#25D366;--green-wa-hover:#1ebe57
+}
+html{font-family:system-ui,-apple-system,sans-serif;background:var(--slate-900);color:var(--slate-100);-webkit-font-smoothing:antialiased}
+body{min-height:100vh}
+/* Layout */
+.d-flex{display:flex}
+.d-grid{display:grid}
+.flex-col{flex-direction:column}
+.flex-wrap{flex-wrap:wrap}
+.flex-1{flex:1}
+.flex-shrink-0{flex-shrink:0}
+.items-center{align-items:center}
+.items-start{align-items:flex-start}
+.items-baseline{align-items:baseline}
+.justify-center{justify-content:center}
+.justify-between{justify-content:space-between}
+.justify-end{justify-content:flex-end}
+.gap-1{gap:.25rem}.gap-1\\.5{gap:.375rem}.gap-2{gap:.5rem}.gap-2\\.5{gap:.625rem}
+.gap-3{gap:.75rem}.gap-4{gap:1rem}.gap-6{gap:1.5rem}.gap-8{gap:2rem}
+.space-y-2>*+*{margin-top:.5rem}
+.space-y-2\\.5>*+*{margin-top:.625rem}
+.space-y-3>*+*{margin-top:.75rem}
+.space-y-4>*+*{margin-top:1rem}
+.space-y-5>*+*{margin-top:1.25rem}
+.space-y-6>*+*{margin-top:1.5rem}
+/* Sizing */
+.w-full{width:100%}
+.w-1\\/2{width:50%}
+.w-1\\/3{width:33.333%}
+.w-2\\/3{width:66.666%}
+.h-full{height:100%}
+/* Text */
+.text-center{text-align:center}
+.text-right{text-align:right}
+.truncate{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.font-sans{font-family:system-ui,-apple-system,sans-serif}
+.font-mono{font-family:'SF Mono',Consolas,'Courier New',monospace}
+.font-normal{font-weight:400}
+.font-semibold{font-weight:600}
+.font-bold{font-weight:700}
+.font-extrabold{font-weight:800}
+.text-\\[8px\\]{font-size:.5rem}
+.text-\\[9px\\]{font-size:.5625rem}
+.text-\\[10px\\]{font-size:.625rem}
+.text-\\[11px\\]{font-size:.6875rem}
+.text-xs{font-size:.75rem;line-height:1rem}
+.text-sm{font-size:.875rem;line-height:1.25rem}
+.text-base{font-size:1rem;line-height:1.5rem}
+.text-lg{font-size:1.125rem;line-height:1.75rem}
+.text-xl{font-size:1.25rem;line-height:1.75rem}
+.text-2xl{font-size:1.5rem;line-height:2rem}
+.leading-relaxed{line-height:1.625}
+.tracking-tight{letter-spacing:-.025em}
+.tracking-wide{letter-spacing:.025em}
+.tracking-wider{letter-spacing:.05em}
+.tracking-widest{letter-spacing:.1em}
+.uppercase{text-transform:uppercase}
+.capitalize{text-transform:capitalize}
+/* Borders */
+.rounded-full{border-radius:9999px}
+.rounded-lg{border-radius:.5rem}
+.rounded-xl{border-radius:.75rem}
+.rounded-2xl{border-radius:1rem}
+/* Position */
+.relative{position:relative}
+.absolute{position:absolute}
+.fixed{position:fixed}
+.sticky{position:sticky}
+.inset-0{top:0;right:0;bottom:0;left:0}
+.top-0{top:0}
+/* Z-index */
+.z-10{z-index:10}
+.z-40{z-index:40}
+.z-50{z-index:50}
+.z-55{z-index:55}
+/* Overflow */
+.overflow-hidden{overflow:hidden}
+.overflow-y-auto{overflow-y:auto}
+/* Misc */
+.cursor-pointer{cursor:pointer}
+.antialiased{-webkit-font-smoothing:antialiased}
+.outline-none{outline:2px solid transparent;outline-offset:2px}
+.opacity-0{opacity:0}
+.opacity-30{opacity:.3}
+.opacity-75{opacity:.75}
+/* Responsive grid helpers */
+.main-layout{display:grid;grid-template-columns:1fr;gap:2rem}
+@media(min-width:1024px){.main-layout{grid-template-columns:repeat(4,1fr)}}
+.sidebar-col{grid-column:span 1}
+.main-col{grid-column:span 3}
+.stats-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:1rem}
+@media(min-width:768px){.stats-grid{grid-template-columns:repeat(4,1fr)}}
+.ticket-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:.625rem}
+@media(min-width:640px){.ticket-grid{grid-template-columns:repeat(6,1fr)}}
+@media(min-width:768px){.ticket-grid{grid-template-columns:repeat(8,1fr)}}
+@media(min-width:1024px){.ticket-grid{grid-template-columns:repeat(10,1fr)}}
+.client-grid{display:grid;grid-template-columns:1fr}
+@media(min-width:768px){.client-grid{grid-template-columns:repeat(3,1fr)}}
+.payment-grid{display:grid;grid-template-columns:1fr}
+@media(min-width:768px){.payment-grid{grid-template-columns:repeat(2,1fr)}}
+.header-row{flex-direction:column}
+@media(min-width:768px){.md-flex-row,.header-row{flex-direction:row}.md-w-auto{width:auto}.md-text-sm{font-size:.875rem}}
+@media(min-width:1280px){.xl-w-auto,.filter-row{width:auto;flex-direction:row}}
+@media(min-width:640px){.sm-flex-row,.sm\:flex-row{flex-direction:row}}
+.pagination-gap{gap:.25rem}
+/* Inputs */
+input[type="text"],input[type="number"],input[type="email"],select,button{font-family:inherit}
+input::placeholder{color:var(--slate-500)}
+input:focus{box-shadow:0 0 0 2px var(--blue-500);border-color:var(--blue-500)}
+button:disabled{opacity:.4;cursor:default}
+/* Animations */
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+.animate-pulse{animation:pulse 2s cubic-bezier(.4,0,.6,1) infinite}
+/* Ticket states */
+.tk-disp{background:rgba(2,44,34,0.4);border-color:rgba(16,185,129,0.4);color:var(--emerald-400)}
+.tk-disp:hover{background:var(--emerald-500);color:var(--slate-900);border-color:var(--emerald-500)}
+.tk-apart{background:rgba(67,20,7,0.45);border-color:rgba(249,115,22,0.6);color:var(--orange-400)}
+.tk-apart:hover{background:var(--orange-500);color:var(--slate-950);border-color:var(--orange-500)}
+.tk-pag{background:var(--slate-800);color:var(--slate-600);border-color:var(--slate-750)}
+.tk-pag:hover{background:var(--slate-700);color:var(--slate-200);border-color:var(--slate-600)}
+/* Custom */
+.backdrop-blur-sm{backdrop-filter:blur(4px)}
+.max-w-7xl{max-width:80rem}
+.max-w-md{max-width:28rem}
+.max-w-2xl{max-width:42rem}
+.mx-auto{margin-left:auto;margin-right:auto}
+.icon-container{display:inline-flex;align-items:center;justify-content:center;vertical-align:middle}
+.icon-container svg{display:block}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+// ==== SVG ICON FACTORY ====
+function icon(path, w, h) {
+  const wA = w || 16;
+  const hA = h || wA;
+  return `<svg width="${wA}" height="${hA}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${path}</svg>`;
+}
+function icnTicket(s) { return icon('<line x1="2" y1="3" x2="2" y2="21"/><line x1="22" y1="3" x2="22" y2="21"/><path d="M4 7h4M4 11h4M4 15h4M4 19h4M12 5v14M16 7l-2 5l2 5M18 7l-2 5l2 5M14 5h6v14h-6"/>', s, s); }
+function icnSearch(s) { return icon('<circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>', s, s); }
+function icnDownload(s) { return icon('<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>', s, s); }
+function icnTrash2(s) { return icon('<polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>', s, s); }
+function icnPlus(s) { return icon('<line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>', s, s); }
+function icnUser(s) { return icon('<path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>', s, s); }
+function icnDollar(s) { return icon('<line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>', s, s); }
+function icnSend(s) { return icon('<line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>', s, s); }
+function icnCheckCircle(s) { return icon('<path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>', s, s); }
+function icnAlertCircle(s) { return icon('<circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>', s, s); }
+function icnX(s) { return icon('<line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>', s, s); }
+function icnChevronLeft(s) { return icon('<polyline points="15 18 9 12 15 6"/>', s, s); }
+function icnChevronRight(s) { return icon('<polyline points="9 18 15 12 9 6"/>', s, s); }
+function icnChevronsLeft(s) { return icon('<polyline points="11 17 6 12 11 7"/><polyline points="18 17 13 12 18 7"/>', s, s); }
+function icnChevronsRight(s) { return icon('<polyline points="13 17 18 12 13 7"/><polyline points="6 17 11 12 6 7"/>', s, s); }
+function icnBookmark(s) { return icon('<path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>', s, s); }
+function icnCreditCard(s) { return icon('<rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/>', s, s); }
+
+// ==== STATE ====
+let rifas = [], activeRifaId = '', clientes = [];
+let isVentaModalOpen = false, isNuevaRifaModalOpen = false, selectedTicket = null;
+let customConfirm = { isOpen: false, title: '', message: '', onConfirm: null, actionType: 'danger' };
+let ticketSearch = '', ticketFilter = 'all', selectedClientFilterId = '', clientSearch = '', currentPage = 1;
+let formRifa = { nombre: '', precio: 5, desde: 1, hasta: 100 };
+let formActionType = 'pagar';
+let formClient = { cedula: '', nombre: '', telefono: '58', email: '' };
+let formPayment = { metodo: 'efectivo', montoEfectivo: 5, montoTransferencia: 0, banco: '', referencia: '' };
+let errorForm = '', successLink = '';
+const TICKETS_POR_PAGINA = 200;
+
+function defaultRifaInicial() {
+  const desde = 1, hasta = 100, padLength = hasta.toString().length, tickets = [];
+  for (let i = desde; i <= hasta; i++) {
+    tickets.push({ numero: i.toString().padStart(padLength, '0'), estado: 'disponible', clienteId: null, transaccionId: null, montoPagado: 0 });
+  }
+  return { id: 'rifa-inicial-default', nombre: 'Sorteo Inicial de Bienvenida', precioTicket: 5, desde, hasta, padLength, tickets, transacciones: [] };
+}
+
+function getActive() { return rifas.find(r => r.id === activeRifaId) || rifas[0] || null; }
+
+function getFiltered(act) {
+  if (!act) return [];
+  return act.tickets.filter(t => {
+    const ms = t.numero.includes(ticketSearch);
+    let mf = true; if (ticketFilter !== 'all') mf = t.estado === ticketFilter;
+    let mc = true; if (selectedClientFilterId) mc = t.clienteId === selectedClientFilterId;
+    return ms && mf && mc;
+  });
+}
+
+function saveData() { if (rifas.length > 0) localStorage.setItem('multi_rifas_data_v3', JSON.stringify({ rifas, clientes, activeRifaId })); }
+
+function loadData() {
+  try {
+    const d = JSON.parse(localStorage.getItem('multi_rifas_data_v3'));
+    if (d) { rifas = d.rifas || []; clientes = d.clientes || []; activeRifaId = d.activeRifaId || (rifas[0]?.id || ''); return; }
+  } catch(e) {}
+  try {
+    const d = JSON.parse(localStorage.getItem('multi_rifas_data_v2'));
+    if (d) { rifas = d.rifas || []; clientes = d.clientes || []; activeRifaId = d.activeRifaId || ''; return; }
+  } catch(e) {}
+  const def = defaultRifaInicial();
+  rifas = [def]; clientes = []; activeRifaId = def.id;
+}
+
+function esc(s) { if (typeof s !== 'string') return s; return s.replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/'/g,'&#039;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+// ==== HANDLERS (attached as onclick) ====
+function hExportar() { const b={rifas,clientes,activeRifaId};const u=URL.createObjectURL(new Blob([JSON.stringify(b,null,2)],{type:'application/json'}));const a=document.createElement('a');a.href=u;a.download='backup_multi_rifas_'+new Date().toISOString().split('T')[0]+'.json';a.click();URL.revokeObjectURL(u); }
+
+function hResetDB() { customConfirm={isOpen:true,title:'Resetear Base de Datos?',message:'Esta acci\u00f3n borrar\u00e1 todas las rifas, los clientes y el historial local por completo. \u00a1No se puede revertir!',actionType:'danger',onConfirm:()=>{localStorage.removeItem('multi_rifas_data_v3');localStorage.removeItem('multi_rifas_data_v2');const d=defaultRifaInicial();rifas=[d];clientes=[];activeRifaId=d.id;selectedClientFilterId='';customConfirm.isOpen=false;saveData();render()}};render() }
+
+function hBorrarRifa(id) { const r=rifas.find(x=>x.id===id);if(!r)return;customConfirm={isOpen:true,title:'Eliminar "'+r.nombre+'"?',message:'Se borrar\u00e1 permanentemente este talonario con todos sus n\u00fameros vendidos, apartados y transacciones asociadas.',actionType:'danger',onConfirm:()=>{const f=rifas.filter(x=>x.id!==id);if(f.length===0){const d=defaultRifaInicial();rifas=[d];activeRifaId=d.id}else{rifas=f;if(activeRifaId===id)activeRifaId=f[0].id}selectedClientFilterId='';customConfirm.isOpen=false;saveData();render()}};render() }
+
+function hSelectRifa(id) { activeRifaId=id;selectedClientFilterId='';currentPage=1;saveData();render() }
+
+function hTicketSearch(v) { ticketSearch=v;currentPage=1;render() }
+function hTicketFilter(f) { ticketFilter=f;currentPage=1;render() }
+function hClientFilter(id) { selectedClientFilterId=id===selectedClientFilterId?'':id;currentPage=1;render() }
+function hClientSearch(v) { clientSearch=v;render() }
+
+function totalPages() { const a=getActive();return Math.ceil(getFiltered(a).length/TICKETS_POR_PAGINA)||1; }
+
+function hPage(n) { const tp=totalPages();currentPage=Math.max(1,Math.min(n,tp));render() }
+
+function hOpenVenta(num) {
+  const a=getActive();if(!a)return;
+  const t=a.tickets.find(x=>x.numero===num);if(!t)return;
+  errorForm='';successLink='';selectedTicket=JSON.parse(JSON.stringify(t));
+  if(t.estado==='disponible'){formActionType='pagar';formClient={cedula:'',nombre:'',telefono:'58',email:''};formPayment={metodo:'efectivo',montoEfectivo:a.precioTicket,montoTransferencia:0,banco:'',referencia:''}}
+  else{const c=clientes.find(x=>x.id===t.clienteId);formClient={cedula:c?.cedula||c?.id||'',nombre:c?.nombre||'Desconocido',telefono:c?.telefono||'58',email:c?.email||''};const p=a.precioTicket-t.montoPagado;formPayment={metodo:'efectivo',montoEfectivo:p>0?p:0,montoTransferencia:0,banco:'',referencia:''}}
+  isVentaModalOpen=true;render()
+}
+
+function hCloseVenta() { isVentaModalOpen=false;selectedTicket=null;errorForm='';successLink='';render() }
+function hOpenNewRifa() { isNuevaRifaModalOpen=true;formRifa={nombre:'',precio:5,desde:1,hasta:100};errorForm='';render() }
+function hCloseNewRifa() { isNuevaRifaModalOpen=false;errorForm='';render() }
+function hConfirmClose() { customConfirm.isOpen=false;render() }
+function hConfirmAction() { if(customConfirm.onConfirm)customConfirm.onConfirm() }
+
+function hCedula(v) {
+  const r=v.replace(/[^a-zA-Z0-9]/g,'').toUpperCase();
+  const u={...formClient,cedula:r};
+  const f=clientes.find(c=>c.id===r);
+  if(f){
+    u.nombre=f.nombre;u.telefono=f.telefono;u.email=f.email||'';
+    // Direct DOM update for auto-fill without full re-render
+    document.querySelectorAll('#app input').forEach(el=>{
+      if(el.placeholder==='Nombre Completo'||el.placeholder==='Ej. Juan P\u00e9rez'){el.value=f.nombre}
+      if(el.placeholder==='584241234567'){el.value=f.telefono}
+      if(el.placeholder==='juan@ejemplo.com'){el.value=f.email||''}
+    });
+  }
+  formClient=u;
+}
+function hNombre(v) { formClient={...formClient,nombre:v} }
+function hTelefono(v) { formClient={...formClient,telefono:v.replace(/\D/g,'')} }
+function hEmail(v) { formClient={...formClient,email:v} }
+
+function hMetodoPago(m) {
+  const a=getActive(),maxM=selectedTicket?.estado==='disponible'?(a?.precioTicket||5):((a?.precioTicket||5)-(selectedTicket?.montoPagado||0));
+  let e=0,t=0;
+  if(m==='efectivo')e=maxM;if(m==='transferencia')t=maxM;if(m==='mixto'){e=maxM/2;t=maxM/2}
+  formPayment={...formPayment,metodo:m,montoEfectivo:e,montoTransferencia:t};render()
+}
+
+function hPagoFld(f,v) { formPayment={...formPayment,[f]:v} }
+
+function hSetAction(t) {
+  formActionType=t;
+  if(t==='pagar'){const a=getActive();formPayment={...formPayment,montoEfectivo:a?a.precioTicket:5,montoTransferencia:0}}
+  else formPayment={...formPayment,montoEfectivo:0,montoTransferencia:0};
+  render()
+}
+
+function hRegistrar() {
+  errorForm='';const a=getActive();if(!a||!selectedTicket)return;
+  const cc=formClient.cedula.toUpperCase().replace(/[^A-Z0-9]/g,'').trim();
+  if(!cc){errorForm='Indica la C\u00e9dula de Identidad del cliente (Ser\u00e1 su identificador \u00fanico).';render();return}
+  if(!formClient.nombre.trim()||formClient.telefono.length<10){errorForm='Completa el nombre y un n\u00famero de WhatsApp internacional v\u00e1lido (Ej: 584241234567).';render();return}
+  const mE=parseFloat(formPayment.montoEfectivo)||0,mT=parseFloat(formPayment.montoTransferencia)||0,tot=mE+mT,pt=a.precioTicket;
+  const isNew=selectedTicket.estado==='disponible',pend=isNew?pt:(pt-selectedTicket.montoPagado);
+  if(formActionType==='pagar'&&tot<pend){errorForm='El pago ingresado ($'+tot.toFixed(2)+') es menor que el saldo pendiente ($'+pend.toFixed(2)+').';render();return}
+  if(tot>pend){errorForm='El pago ingresado ($'+tot.toFixed(2)+') supera el saldo pendiente ($'+pend.toFixed(2)+').';render();return}
+  if((formPayment.metodo==='transferencia'||formPayment.metodo==='mixto')&&mT>0&&(!formPayment.banco.trim()||!formPayment.referencia.trim())){errorForm='Indica el Banco Emisor y la Referencia para el control fiscal y de caja.';render();return}
+  if(!a.tickets.find(t=>t.numero===selectedTicket.numero)){errorForm='Ticket no encontrado.';render();return}
+  let cl=clientes.find(x=>x.id===cc);
+  if(!cl){cl={id:cc,cedula:cc,nombre:formClient.nombre,telefono:formClient.telefono,email:formClient.email};clientes=[...clientes,cl]}
+  else clientes=clientes.map(x=>x.id===cc?{...x,nombre:formClient.nombre,telefono:formClient.telefono,email:formClient.email}:x);
+  const nMA=selectedTicket.montoPagado+tot,nEst=nMA>=pt?'pagado':'apartado',esFull=nMA>=pt;
+  const tx={id:crypto.randomUUID(),ticketNumero:selectedTicket.numero,clienteId:cl.id,tipoPago:formPayment.metodo,montoEfectivo:mE,montoTransferencia:mT,bancoEmisor:formPayment.banco,referencia:formPayment.referencia,fecha:new Date().toISOString(),montoTotal:tot,concepto:isNew?(nEst==='pagado'?'Compra Completa Directa':'Apartado Inicial'):(esFull?'Abono para Liquidaci\u00f3n':'Abono Parcial')};
+  rifas=rifas.map(r=>r.id===activeRifaId?{...r,tickets:r.tickets.map(t=>t.numero===selectedTicket.numero?{...t,estado:nEst,clienteId:cl.id,transaccionId:tx.id,montoPagado:nMA}:t),transacciones:[...r.transacciones,tx]}:r);
+  saveData();
+  const metodoStr=formPayment.metodo==='mixto'?'Mixto (Ef: $'+mE.toFixed(2)+' + Tr: $'+mT.toFixed(2)+')':formPayment.metodo==='transferencia'?'Transferencia '+formPayment.banco+' (Ref: '+formPayment.referencia+')':'Efectivo ($'+mE.toFixed(2)+')';
+  let msg='';const nl='%0A';
+  if(nEst==='pagado')msg='Hola *'+cl.nombre+'*! '+nl+nl+'Confirmamos con exito la adquisicion completa de tu numero para la rifa:'+nl+'[TROFEO] *'+a.nombre+'*'+nl+nl+'[TICKET] *Ticket Nro:* '+selectedTicket.numero+nl+'[ID] *Cedula:* '+cl.cedula+nl+'[DINERO] *Monto Total:* $'+pt.toFixed(2)+nl+'[PAGO] *Abonado Hoy:* $'+tot.toFixed(2)+nl+'[TARJETA] *Metodo:* '+metodoStr+nl+nl+'!Tu numero esta cancelado al 100%! Te deseamos la mayor de las suertes. [SUERTE]';
+  else msg='Hola *'+cl.nombre+'*! '+nl+nl+'Hemos registrado un *Apartado/Abono* para tu numero en la rifa:'+nl+'[TROFEO] *'+a.nombre+'*'+nl+nl+'[TICKET] *Ticket Nro:* '+selectedTicket.numero+nl+'[ID] *Cedula:* '+cl.cedula+nl+'[DINERO] *Precio Total:* $'+pt.toFixed(2)+nl+'[PAGO] *Abonado Hoy:* $'+tot.toFixed(2)+nl+'[GRAFICO] *Total Acumulado:* $'+nMA.toFixed(2)+nl+'[RELOJ] *Saldo Pendiente:* $'+Math.max(0,pt-nMA).toFixed(2)+nl+'[TARJETA] *Metodo:* '+metodoStr+nl+nl+'Recuerda abonar el saldo pendiente antes del sorteo. !Muchas gracias! [SUERTE]';
+  successLink='https://wa.me/'+cl.telefono+'?text='+encodeURIComponent(msg.replace(/%0A/g,'\\n'));
+  selectedTicket={...selectedTicket,estado:nEst,montoPagado:nMA,clienteId:cl.id};render()
+}
+
+function hLiberar() {
+  if(!selectedTicket)return;const a=getActive();if(!a)return;
+  customConfirm={isOpen:true,title:'Liberar Ticket #'+selectedTicket.numero+'?',message:'Esto anular\u00e1 la reserva/pago para este ticket. El cliente perder\u00e1 el n\u00famero asignado y pasar\u00e1 a estar "Disponible". Las transacciones previas se conservar\u00e1n en el historial de caja pero el ticket se resetear\u00e1.',actionType:'danger',onConfirm:()=>{rifas=rifas.map(r=>r.id===activeRifaId?{...r,tickets:r.tickets.map(t=>t.numero===selectedTicket.numero?{...t,estado:'disponible',clienteId:null,transaccionId:null,montoPagado:0}:t),transacciones:[...r.transacciones,{id:crypto.randomUUID(),ticketNumero:selectedTicket.numero,clienteId:selectedTicket.clienteId,tipoPago:'liberacion',montoEfectivo:0,montoTransferencia:0,bancoEmisor:'',referencia:'',fecha:new Date().toISOString(),montoTotal:-(selectedTicket.montoPagado),concepto:'Ticket Liberado/Anulado'}]}:r);saveData();isVentaModalOpen=false;selectedTicket=null;customConfirm.isOpen=false;render()}};render()
+}
+
+function hCrearRifa(e) {
+  e.preventDefault();const s=parseInt(formRifa.desde,10),en=parseInt(formRifa.hasta,10),pr=parseFloat(formRifa.precio)||0;
+  if(!formRifa.nombre.trim()){errorForm='Indica un nombre para el talonario.';render();return}
+  if(isNaN(s)||isNaN(en)){errorForm='Rangos "desde" y "hasta" inv\u00e1lidos.';render();return}
+  if(s<0||en<0){errorForm='Los n\u00fameros de tickets no pueden ser negativos.';render();return}
+  if(s>=en){errorForm='El n\u00famero inicial debe ser menor que el n\u00famero final.';render();return}
+  if(en-s>10000){errorForm='Por l\u00edmites de rendimiento del navegador, el rango m\u00e1ximo permitido es de 10,000 n\u00fameros.';render();return}
+  if(pr<=0){errorForm='El precio del ticket debe ser mayor a 0.';render();return}
+  const pad=en.toString().length,gt=[];
+  for(let i=s;i<=en;i++)gt.push({numero:i.toString().padStart(pad,'0'),estado:'disponible',clienteId:null,transaccionId:null,montoPagado:0});
+  const nr={id:crypto.randomUUID(),nombre:formRifa.nombre,precioTicket:pr,desde:s,hasta:en,padLength:pad,tickets:gt,transacciones:[]};
+  rifas=[...rifas,nr];activeRifaId=nr.id;isNuevaRifaModalOpen=false;formRifa={nombre:'',precio:5,desde:1,hasta:100};errorForm='';saveData();render()
+}
+
+// ==== RENDER ====
+function render() {
+  const a=getActive(),ft=getFiltered(a),tp=Math.ceil(ft.length/TICKETS_POR_PAGINA)||1;
+  if(currentPage>tp)currentPage=tp;
+  const pt=ft.slice((currentPage-1)*TICKETS_POR_PAGINA,currentPage*TICKETS_POR_PAGINA);
+  const tt=a?.tickets?.length||0,tv=a?.tickets?.filter(t=>t.estado==='pagado')?.length||0;
+  const ta=a?.tickets?.filter(t=>t.estado==='apartado')?.length||0,td=tt-tv-ta;
+  const re=a?.transacciones?.reduce((s,t)=>s+(t.montoEfectivo||0),0)||0;
+  const rt=a?.transacciones?.reduce((s,t)=>s+(t.montoTransferencia||0),0)||0,rc=re+rt;
+  const cct=clientes.filter(c=>a?.tickets?.some(t=>t.clienteId===c.id&&t.estado!=='disponible'));
+  const ccf=cct.filter(c=>{const q=clientSearch.toLowerCase().trim();return!q||c.nombre.toLowerCase().includes(q)||c.id.toLowerCase().includes(q);});
+  const sfc=clientes.find(c=>c.id===selectedClientFilterId);
+
+  function html(s) { return esc(s); }
+  function attr(s) { return esc(s); }
+
+  const APP = `
+<div style="min-height:100vh;background:var(--slate-900);color:var(--slate-100);font-family:system-ui,-apple-system,sans-serif;padding-bottom:3rem">
+
+  <!-- HEADER -->
+  <div style="position:sticky;top:0;z-index:40;background:rgba(30,41,59,0.9);border-bottom:1px solid var(--slate-700);backdrop-filter:blur(8px);box-shadow:0 4px 6px -1px rgba(0,0,0,0.1)">
+    <div style="max-width:80rem;margin:0 auto;padding:1rem;display:flex;flex-direction:column;align-items:center;justify-content:space-between;gap:1rem" class="md-flex-row">
+      <div style="display:flex;align-items:center;gap:.75rem">
+        <div style="background:var(--blue-600);padding:.625rem;border-radius:.75rem;color:var(--white);box-shadow:0 4px 14px 0 rgba(59,130,246,0.2)">${icnTicket(24)}</div>
+        <div><h1 style="font-size:1.25rem;font-weight:800;letter-spacing:-.025em">Talonario Pro v2</h1><p style="font-size:.75rem;color:var(--slate-400)">Gestor Multi-Rifas - C\u00e9dula como PK & Filtros</p></div>
+      </div>
+      <div style="display:flex;align-items:center;gap:.5rem;width:100%" class="md-w-auto">
+        <button onclick="hExportar()" style="border:1px solid var(--slate-600);background:rgba(51,65,85,0.5);color:var(--slate-200);padding:.5rem .875rem;border-radius:.5rem;font-weight:500;cursor:pointer;display:flex;align-items:center;gap:.5rem;font-size:.75rem" class="md-text-sm">${icnDownload(16)} Exportar JSON</button>
+        <button onclick="hResetDB()" style="border:1px solid var(--rose-800);background:rgba(76,5,25,0.4);color:var(--rose-300);padding:.5rem .875rem;border-radius:.5rem;font-weight:500;cursor:pointer;display:flex;align-items:center;gap:.5rem;font-size:.75rem" class="md-text-sm">${icnTrash2(16)} Resetear DB</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN LAYOUT -->
+  <div style="max-width:80rem;margin:2rem auto 0;padding:0 1rem" class="main-layout">
+
+    <!-- SIDEBAR -->
+    <div class="sidebar-col" style="display:flex;flex-direction:column;gap:1.5rem">
+
+      <!-- SORTEOS -->
+      <div style="background:var(--slate-800);padding:1.25rem;border-radius:1rem;border:1px solid rgba(51,65,85,0.6);box-shadow:0 20px 25px -5px rgba(0,0,0,0.1)">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem">
+          <h2 style="font-weight:700;color:var(--slate-200);font-size:.75rem;letter-spacing:.05em;text-transform:uppercase">Mis Sorteos</h2>
+          <button onclick="hOpenNewRifa()" style="background:var(--blue-600);padding:.375rem;border-radius:.5rem;color:var(--white);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center" title="Crear Nueva Rifa">${icnPlus(16)}</button>
+        </div>
+        <div style="max-height:220px;overflow-y:auto;padding-right:.25rem;display:flex;flex-direction:column;gap:.625rem">
+          ${rifas.map(r => `
+          <div onclick="hSelectRifa('${r.id}')" style="padding:.75rem;border-radius:.75rem;border:1px solid ${activeRifaId===r.id?'var(--blue-500)':'var(--slate-700)'};background:${activeRifaId===r.id?'rgba(23,37,84,0.45)':'rgba(30,41,59,0.5)'};color:${activeRifaId===r.id?'#bfdbfe':'var(--slate-300)'};cursor:pointer;display:flex;justify-content:space-between;align-items:center;transition:all .15s">
+            <div style="overflow:hidden;padding-right:.5rem;flex:1">
+              <p style="font-weight:700;font-size:.875rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${html(r.nombre)}</p>
+              <p style="font-size:.75rem;color:var(--slate-400);margin-top:.125rem">Precio: $${r.precioTicket.toFixed(2)}</p>
+            </div>
+            <div style="display:flex;align-items:center;gap:.375rem;flex-shrink:0">
+              <span style="font-size:.625rem;font-weight:700;padding:.125rem .5rem;border-radius:9999px;background:var(--slate-700);color:var(--slate-300)">${r.tickets.length} Nros</span>
+              <button onclick="event.stopPropagation();hBorrarRifa('${r.id}')" style="color:var(--slate-500);padding:.25rem;border-radius:.25rem;background:none;border:none;cursor:pointer" title="Eliminar Rifa">${icnTrash2(14)}</button>
+            </div>
+          </div>`).join('')}
+        </div>
+      </div>
+
+      <!-- CLIENTES -->
+      <div style="background:var(--slate-800);padding:1.25rem;border-radius:1rem;border:1px solid rgba(51,65,85,0.6);box-shadow:0 20px 25px -5px rgba(0,0,0,0.1)">
+        <h2 style="font-weight:700;color:var(--slate-200);font-size:.75rem;letter-spacing:.05em;text-transform:uppercase;margin-bottom:.5rem">Directorio de Clientes</h2>
+        <p style="font-size:.75rem;color:var(--slate-400);margin-bottom:.875rem">Filtro r\u00e1pido e historial consolidado por cliente:</p>
+        <div style="position:relative;margin-bottom:.875rem">
+          <span style="position:absolute;left:.75rem;top:.625rem;color:var(--slate-400);pointer-events:none">${icnSearch(14)}</span>
+          <input type="text" value="${attr(clientSearch)}" oninput="hClientSearch(this.value)" placeholder="Buscar por nombre o c\u00e9dula..." style="width:100%;background:var(--slate-900);border:1px solid var(--slate-700);color:var(--slate-200);padding:.375rem .75rem .375rem 2.25rem;border-radius:.5rem;font-size:.75rem;outline:none">
+        </div>
+        <div style="max-height:300px;overflow-y:auto;padding-right:.25rem;display:flex;flex-direction:column;gap:.5rem">
+          ${ccf.length>0?ccf.map(c=>{const tc=a?.tickets?.filter(t=>t.clienteId===c.id&&t.estado!=='disponible')||[];const ta=tc.reduce((s,t)=>s+(t.montoPagado||0),0);const vt=tc.length*(a?.precioTicket||0);const de=vt-ta;return`
+          <div onclick="hClientFilter('${c.id}')" style="padding:.625rem;border-radius:.75rem;border:1px solid ${selectedClientFilterId===c.id?'rgba(245,158,11,0.75)':'var(--slate-750)'};background:${selectedClientFilterId===c.id?'rgba(69,26,3,0.4)':'rgba(15,23,42,0.4)'};color:${selectedClientFilterId===c.id?'#fde68a':'var(--slate-300)'};cursor:pointer;display:flex;flex-direction:column;gap:.375rem;font-size:.75rem">
+            <div style="display:flex;justify-content:space-between;align-items:center;font-weight:700"><span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:130px">${html(c.nombre)}</span><span style="font-family:'SF Mono',Consolas,'Courier New',monospace;font-size:.5625rem;padding:.125rem .375rem;border-radius:.25rem;background:var(--slate-700);color:var(--slate-300)">${tc.length} tks</span></div>
+            <div style="display:flex;justify-content:space-between;font-size:.625rem;color:var(--slate-400);font-family:'SF Mono',Consolas,'Courier New',monospace"><span>CI: ${html(c.cedula||c.id)}</span>${de>0?'<span style="color:var(--rose-400)">Debe: $'+de.toFixed(1)+'</span>':''}</div>
+          </div>`}).join(''):'<p style="font-size:.75rem;color:var(--slate-500);text-align:center;padding:1rem 0">Ning\u00fan cliente coincide con la b\u00fasqueda.</p>'}
+        </div>
+      </div>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div class="main-col" style="display:flex;flex-direction:column;gap:1.5rem">
+
+      ${a?`
+      <!-- STATS -->
+      <div class="stats-grid">
+        <div style="background:var(--slate-800);padding:1rem;border-radius:.75rem;border:1px solid rgba(51,65,85,0.6);box-shadow:0 10px 15px -3px rgba(0,0,0,0.1)">
+          <p style="font-size:.75rem;font-weight:600;color:var(--slate-400);text-transform:uppercase;letter-spacing:.05em">Talonario Activo</p>
+          <p style="font-size:1.125rem;font-weight:800;color:var(--blue-400);margin-top:.25rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${attr(a.nombre)}">${html(a.nombre)}</p>
+          <p style="font-size:.625rem;color:var(--slate-400);margin-top:.125rem">Precio: $${a.precioTicket.toFixed(2)} | Rango: ${a.desde} - ${a.hasta}</p>
+        </div>
+        <div style="background:var(--slate-800);padding:1rem;border-radius:.75rem;border:1px solid rgba(51,65,85,0.6);box-shadow:0 10px 15px -3px rgba(0,0,0,0.1)">
+          <p style="font-size:.75rem;font-weight:600;color:var(--slate-400);text-transform:uppercase;letter-spacing:.05em">Libres / Total</p>
+          <div style="display:flex;align-items:baseline;gap:.5rem;margin-top:.25rem"><p style="font-size:1.5rem;font-weight:800;color:var(--emerald-400)">${td}</p><span style="font-size:.75rem;color:var(--slate-400)">/ ${tt}</span></div>
+          <div style="width:100%;height:.25rem;background:var(--slate-700);border-radius:9999px;margin-top:.5rem;overflow:hidden"><div style="width:${tt>0?(td/tt*100):0}%;height:100%;background:var(--emerald-400);border-radius:9999px;transition:all .3s"></div></div>
+        </div>
+        <div style="background:var(--slate-800);padding:1rem;border-radius:.75rem;border:1px solid rgba(51,65,85,0.6);box-shadow:0 10px 15px -3px rgba(0,0,0,0.1)">
+          <p style="font-size:.75rem;font-weight:600;color:var(--slate-400);text-transform:uppercase;letter-spacing:.05em">Apartados / Vendidos</p>
+          <div style="display:flex;align-items:baseline;gap:.5rem;margin-top:.25rem"><p style="font-size:1.5rem;font-weight:800;color:var(--orange-400)">${ta}</p><span style="font-size:.75rem;color:var(--slate-400)">/ ${tv} pagados</span></div>
+          <div style="display:flex;gap:.25rem;width:100%;margin-top:.5rem"><div style="flex:1;height:.25rem;background:var(--slate-700);border-radius:9999px;overflow:hidden"><div style="width:${tt>0?(ta/tt*100):0}%;height:100%;background:var(--orange-400);border-radius:9999px"></div></div><div style="flex:1;height:.25rem;background:var(--slate-700);border-radius:9999px;overflow:hidden"><div style="width:${tt>0?(tv/tt*100):0}%;height:100%;background:var(--blue-400);border-radius:9999px"></div></div></div>
+        </div>
+        <div style="background:var(--slate-800);padding:1rem;border-radius:.75rem;border:1px solid rgba(51,65,85,0.6);box-shadow:0 10px 15px -3px rgba(0,0,0,0.1)">
+          <p style="font-size:.75rem;font-weight:600;color:var(--slate-400);text-transform:uppercase;letter-spacing:.05em">Efectivo Real en Caja</p>
+          <p style="font-size:1.5rem;font-weight:800;color:var(--yellow-400);margin-top:.25rem;font-family:'SF Mono',Consolas,'Courier New',monospace">$${rc.toFixed(2)}</p>
+          <div style="display:flex;justify-content:space-between;font-size:.5625rem;color:var(--slate-400);margin-top:.5rem"><span>Ef: $${re.toFixed(1)}</span><span>Tr: $${rt.toFixed(1)}</span></div>
+        </div>
+      </div>`:''}
+
+      <!-- TICKET BOARD -->
+      <div style="background:var(--slate-800);padding:1.5rem;border-radius:1rem;border:1px solid rgba(51,65,85,0.6);box-shadow:0 20px 25px -5px rgba(0,0,0,0.1)">
+        <div style="display:flex;flex-direction:column;gap:1rem;justify-content:space-between;align-items:center;border-bottom:1px solid var(--slate-700);padding-bottom:1.25rem;margin-bottom:1.25rem" class="filter-row">
+          <div style="display:flex;align-items:center;gap:.5rem"><span style="color:var(--blue-500)">${icnTicket(20)}</span><h2 style="font-weight:800;font-size:1rem;letter-spacing:-.025em;color:var(--slate-200)">Panel de Selecci\u00f3n de N\u00fameros</h2></div>
+          <div style="display:flex;flex-wrap:wrap;align-items:center;gap:.75rem;width:100%" class="xl-w-auto">
+            <div style="position:relative;flex:1;min-width:140px"><span style="position:absolute;left:.75rem;top:.75rem;color:var(--slate-400);pointer-events:none">${icnSearch(16)}</span><input type="text" value="${attr(ticketSearch)}" oninput="hTicketSearch(this.value)" placeholder="Buscar n\u00famero..." style="width:100%;background:var(--slate-900);border:1px solid var(--slate-700);color:var(--slate-100);padding:.5rem .75rem .5rem 2.25rem;border-radius:.5rem;font-size:.75rem;outline:none;font-family:'SF Mono',Consolas,'Courier New',monospace"></div>
+            <div style="display:flex;background:var(--slate-900);border:1px solid var(--slate-700);border-radius:.5rem;padding:.25rem;font-size:.75rem">
+              <button onclick="hTicketFilter('all')" style="padding:.375rem .75rem;border-radius:.375rem;font-weight:500;border:none;cursor:pointer;background:${ticketFilter==='all'?'var(--blue-600)':'transparent'};color:${ticketFilter==='all'?'var(--white)':'var(--slate-400)'}">Todos</button>
+              <button onclick="hTicketFilter('disponible')" style="padding:.375rem .75rem;border-radius:.375rem;font-weight:500;border:none;cursor:pointer;background:${ticketFilter==='disponible'?'rgba(5,150,105,0.8)':'transparent'};color:${ticketFilter==='disponible'?'var(--white)':'var(--slate-400)'}">Libres</button>
+              <button onclick="hTicketFilter('apartado')" style="padding:.375rem .75rem;border-radius:.375rem;font-weight:500;border:none;cursor:pointer;background:${ticketFilter==='apartado'?'var(--orange-500)':'transparent'};color:${ticketFilter==='apartado'?'var(--slate-950)':'var(--slate-400)'}">Apartados</button>
+              <button onclick="hTicketFilter('pagado')" style="padding:.375rem .75rem;border-radius:.375rem;font-weight:500;border:none;cursor:pointer;background:${ticketFilter==='pagado'?'var(--slate-700)':'transparent'};color:${ticketFilter==='pagado'?'var(--white)':'var(--slate-400)'}">Pagados</button>
+            </div>
+          </div>
+        </div>
+
+        ${sfc&&selectedClientFilterId?`
+        <div style="display:flex;flex-direction:column;gap:.75rem;margin-bottom:1rem;padding:1rem;border-radius:.75rem;font-size:.75rem;background:rgba(69,26,3,0.3);border:1px solid rgba(245,158,11,0.35);color:#fde68a" class="sm-flex-row">
+          <div style="display:flex;align-items:center;gap:.75rem"><div style="padding:.5rem;border-radius:.5rem;background:rgba(245,158,11,0.2);color:var(--amber-400)">${icnUser(16)}</div><div><p style="font-weight:700">Filtro Activo por Cliente: ${html(sfc.nombre)}</p><p style="font-size:.625rem;color:var(--slate-400);margin-top:.125rem">C\u00e9dula: ${html(sfc.cedula||sfc.id)} | WhatsApp: ${html(sfc.telefono)}</p></div></div>
+          <button onclick="hClientFilter('${sfc.id}')" style="padding:.375rem .75rem;border-radius:.5rem;display:flex;align-items:center;gap:.375rem;font-weight:700;font-size:.625rem;text-transform:uppercase;letter-spacing:.05em;background:rgba(245,158,11,0.2);color:var(--amber-400);border:none;cursor:pointer;flex-shrink:0">${icnX(14)} Quitar Filtro</button>
+        </div>`:''}
+
+        ${a?`
+        <div style="display:flex;flex-direction:column;gap:.5rem;margin-bottom:1rem;padding:.625rem;border-radius:.75rem;font-size:.75rem;color:var(--slate-400);background:rgba(15,23,42,0.4);border:1px solid var(--slate-750)" class="sm-flex-row">
+          <div style="flex:1">Encontrados: <span style="color:var(--slate-200);font-weight:700">${ft.length}</span> tickets de <span style="color:var(--slate-200);font-weight:700">${a.tickets.length}</span>.</div>
+          ${tp>1&&!selectedClientFilterId?`
+          <div style="display:flex;align-items:center;gap:.375rem;font-family:'SF Mono',Consolas,'Courier New',monospace">
+            <button onclick="hPage(1)" ${currentPage===1?'disabled':''} style="padding:.25rem;border-radius:.25rem;background:var(--slate-700);color:var(--slate-300);border:none;cursor:pointer;opacity:${currentPage===1?.4:1};display:flex;align-items:center">${icnChevronsLeft(14)}</button>
+            <button onclick="hPage(${currentPage-1})" ${currentPage===1?'disabled':''} style="padding:.25rem;border-radius:.25rem;background:var(--slate-700);color:var(--slate-300);border:none;cursor:pointer;opacity:${currentPage===1?.4:1};display:flex;align-items:center">${icnChevronLeft(14)}</button>
+            <span style="padding:0 .5rem">P\u00e1g ${currentPage} / ${tp}</span>
+            <button onclick="hPage(${currentPage+1})" ${currentPage===tp?'disabled':''} style="padding:.25rem;border-radius:.25rem;background:var(--slate-700);color:var(--slate-300);border:none;cursor:pointer;opacity:${currentPage===tp?.4:1};display:flex;align-items:center">${icnChevronRight(14)}</button>
+            <button onclick="hPage(${tp})" ${currentPage===tp?'disabled':''} style="padding:.25rem;border-radius:.25rem;background:var(--slate-700);color:var(--slate-300);border:none;cursor:pointer;opacity:${currentPage===tp?.4:1};display:flex;align-items:center">${icnChevronsRight(14)}</button>
+          </div>`:''}
+        </div>
+
+        ${pt.length>0?`
+        <div class="ticket-grid">
+          ${pt.map(t=>{
+            const isD=t.estado==='disponible',isA=t.estado==='apartado',isP=t.estado==='pagado';
+            const cls=isD?'tk-disp':isA?'tk-apart':'tk-pag';
+            return `
+            <button onclick="hOpenVenta('${t.numero}')" class="${cls}" style="height:2.75rem;border-radius:.75rem;font-weight:700;font-size:.875rem;letter-spacing:.025em;overflow:hidden;font-family:'SF Mono',Consolas,'Courier New',monospace;border:1px solid;cursor:pointer;box-shadow:0 4px 6px -1px rgba(0,0,0,0.1);position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;transition:all .2s" title="Ticket #${t.numero} - ${t.estado.toUpperCase()}">
+              <span>${t.numero}</span>
+              ${isA?'<span style="font-size:.5rem;font-weight:600;margin-top:-.125rem;font-family:system-ui,-apple-system,sans-serif;color:var(--orange-300)">$'+t.montoPagado.toFixed(0)+'</span>':''}
+              ${isP?'<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center"><div style="height:.125rem;width:100%;background:rgba(51,65,85,0.65);transform:rotate(12deg);position:absolute"></div></div>':''}
+            </button>`}).join('')}
+        </div>`:`
+        <div style="text-align:center;padding:4rem 0;color:var(--slate-500)">
+          <div style="display:flex;justify-content:center;margin-bottom:.75rem;opacity:.3">${icnSearch(40)}</div>
+          No se encontraron n\u00fameros que coincidan con la b\u00fasqueda o filtro.
+        </div>`}
+
+        ${tp>1&&!selectedClientFilterId?`
+        <div style="display:flex;justify-content:flex-end;gap:.25rem;font-family:'SF Mono',Consolas,'Courier New',monospace;font-size:.75rem;margin-top:1.5rem;padding-top:1rem;border-top:1px solid var(--slate-750)">
+          <button onclick="hPage(1)" ${currentPage===1?'disabled':''} style="padding:.375rem .625rem;border-radius:.25rem;background:var(--slate-700);color:var(--slate-300);border:none;cursor:pointer">Primera</button>
+          <button onclick="hPage(${currentPage-1})" ${currentPage===1?'disabled':''} style="padding:.375rem .625rem;border-radius:.25rem;background:var(--slate-700);color:var(--slate-300);border:none;cursor:pointer">Anterior</button>
+          <span style="padding:.375rem .75rem;border-radius:.25rem;color:var(--slate-400);background:var(--slate-900);border:1px solid var(--slate-700)">P\u00e1g. ${currentPage} de ${tp}</span>
+          <button onclick="hPage(${currentPage+1})" ${currentPage===tp?'disabled':''} style="padding:.375rem .625rem;border-radius:.25rem;background:var(--slate-700);color:var(--slate-300);border:none;cursor:pointer">Siguiente</button>
+          <button onclick="hPage(${tp})" ${currentPage===tp?'disabled':''} style="padding:.375rem .625rem;border-radius:.25rem;background:var(--slate-700);color:var(--slate-300);border:none;cursor:pointer">\u00daltima</button>
+        </div>`:''}
+        `:'<div style="text-align:center;padding:4rem 0;color:var(--slate-500)">Cargando talonarios...</div>'}
+      </div>
+    </div>
+  </div>
+
+  ${/* MODAL: NUEVA RIFA */''}
+  ${isNuevaRifaModalOpen?`
+  <div style="position:fixed;inset:0;z-index:50;padding:1rem;background:rgba(2,6,23,0.8);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center">
+    <div style="max-width:28rem;width:100%;background:var(--slate-800);border-radius:1rem;border:1px solid var(--slate-700);box-shadow:0 25px 50px -12px rgba(0,0,0,0.25);overflow:hidden">
+      <div style="padding:1.25rem;border-bottom:1px solid var(--slate-700);background:rgba(30,41,59,0.5);display:flex;justify-content:space-between;align-items:center">
+        <h3 style="font-size:1.125rem;font-weight:700;color:var(--slate-100);display:flex;align-items:center;gap:.5rem">${icnPlus(20)} Crear Nuevo Sorteo</h3>
+        <button onclick="hCloseNewRifa()" style="color:var(--slate-400);background:none;border:none;cursor:pointer;font-size:1.25rem">\u2715</button>
+      </div>
+      <form onsubmit="hCrearRifa(event)" style="padding:1.5rem;display:flex;flex-direction:column;gap:1.25rem">
+        <div><label style="display:block;font-size:.75rem;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--slate-400);margin-bottom:.375rem">Nombre de la Rifa</label><input type="text" required value="${attr(formRifa.nombre)}" oninput="formRifa={...formRifa,nombre:this.value}" style="width:100%;background:var(--slate-900);border:1px solid var(--slate-700);color:var(--slate-100);padding:.625rem;border-radius:.5rem;font-size:.875rem;outline:none" placeholder="Ej: Rifa Pro-Fondos Moto Suzuki"></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">
+          <div><label style="display:block;font-size:.75rem;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--slate-400);margin-bottom:.375rem">Ticket Desde</label><input type="number" required min="0" value="${formRifa.desde}" oninput="formRifa={...formRifa,desde:this.value}" style="width:100%;background:var(--slate-900);border:1px solid var(--slate-700);color:var(--slate-100);padding:.625rem;border-radius:.5rem;font-size:.875rem;outline:none"></div>
+          <div><label style="display:block;font-size:.75rem;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--slate-400);margin-bottom:.375rem">Ticket Hasta</label><input type="number" required min="1" value="${formRifa.hasta}" oninput="formRifa={...formRifa,hasta:this.value}" style="width:100%;background:var(--slate-900);border:1px solid var(--slate-700);color:var(--slate-100);padding:.625rem;border-radius:.5rem;font-size:.875rem;outline:none"></div>
+        </div>
+        <div><label style="display:block;font-size:.75rem;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--slate-400);margin-bottom:.375rem">Precio de Ticket ($ USD)</label><div style="position:relative"><span style="position:absolute;left:.75rem;top:.75rem;color:var(--slate-400)">$</span><input type="number" step="0.01" min="0.10" required value="${formRifa.precio}" oninput="formRifa={...formRifa,precio:this.value}" style="width:100%;background:var(--slate-900);border:1px solid var(--slate-700);color:var(--slate-100);padding:.625rem .75rem .625rem 1.75rem;border-radius:.5rem;font-size:.875rem;outline:none"></div></div>
+        ${errorForm?`<div style="display:flex;align-items:center;gap:.5rem;font-size:.75rem;padding:.75rem;border-radius:.5rem;background:rgba(76,5,25,0.5);border:1px solid var(--rose-800);color:var(--rose-300)">${icnAlertCircle(16)}<p>${html(errorForm)}</p></div>`:''}
+        <div style="display:flex;gap:.75rem;padding-top:.5rem">
+          <button type="button" onclick="hCloseNewRifa()" style="width:50%;font-weight:700;padding:.625rem;border-radius:.75rem;font-size:.875rem;background:var(--slate-700);color:var(--slate-300);border:none;cursor:pointer">Cancelar</button>
+          <button type="submit" style="width:50%;font-weight:700;padding:.625rem;border-radius:.75rem;font-size:.875rem;background:var(--blue-600);color:var(--white);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:.5rem">Crear Talonario</button>
+        </div>
+      </form>
+    </div>
+  </div>`:''}
+
+  ${/* MODAL: VENTA */''}
+  ${isVentaModalOpen&&selectedTicket&&a?`
+  <div style="position:fixed;inset:0;z-index:50;padding:1rem;background:rgba(2,6,23,0.8);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center">
+    <div style="max-width:42rem;width:100%;max-height:92vh;overflow-y:auto;background:var(--slate-800);border-radius:1rem;border:1px solid var(--slate-700);box-shadow:0 25px 50px -12px rgba(0,0,0,0.25)">
+      <div style="padding:1.25rem;border-bottom:1px solid var(--slate-700);background:var(--slate-800);position:sticky;top:0;z-index:10;display:flex;justify-content:space-between;align-items:center">
+        <h3 style="font-size:1.125rem;font-weight:700;color:var(--slate-100);display:flex;align-items:center;gap:.5rem">
+          Asignar Ticket <span style="padding:.125rem .625rem;border-radius:.5rem;border:1px solid var(--blue-800);font-family:'SF Mono',Consolas,'Courier New',monospace;background:var(--blue-950);color:var(--blue-300)">#${selectedTicket.numero}</span>
+          ${selectedTicket.estado!=='disponible'?`<span style="font-size:.75rem;padding:.125rem .625rem;border-radius:9999px;font-family:system-ui,-apple-system,sans-serif;text-transform:capitalize;${selectedTicket.estado==='apartado'?'background:rgba(249,115,22,0.2);color:var(--orange-400);border:1px solid rgba(249,115,22,0.3)':'background:var(--slate-700);color:var(--slate-400)'}">${selectedTicket.estado}</span>`:''}
+        </h3>
+        <button onclick="hCloseVenta()" style="color:var(--slate-400);background:none;border:none;cursor:pointer;font-size:1.25rem">\u2715</button>
+      </div>
+      <div style="padding:1.5rem;font-family:system-ui,-apple-system,sans-serif">
+        ${!successLink?`
+        <div style="display:flex;flex-direction:column;gap:1.5rem">
+          <!-- CLIENTE -->
+          <section>
+            <h4 style="font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--slate-400);margin-bottom:.875rem;display:flex;align-items:center;gap:.5rem">${icnUser(16)} 1. Datos del Cliente (B\u00fasqueda por C\u00e9dula)</h4>
+            ${selectedTicket.estado==='disponible'?`
+            <div style="display:flex;flex-direction:column;gap:1rem">
+              <div class="client-grid" style="gap:1rem">
+                <div><label style="display:block;font-size:.75rem;color:var(--slate-400);margin-bottom:.25rem;font-weight:600;display:flex;align-items:center;gap:.25rem">${icnCreditCard(12)} C\u00e9dula (\u00danica/PK)</label><input type="text" value="${attr(formClient.cedula)}" oninput="hCedula(this.value)" style="width:100%;background:var(--slate-900);border:1px solid var(--slate-700);color:var(--slate-100);padding:.625rem;border-radius:.5rem;font-size:.875rem;outline:none;font-family:'SF Mono',Consolas,'Courier New',monospace;font-weight:700" placeholder="Ej. V12345678"></div>
+                <div><label style="display:block;font-size:.75rem;color:var(--slate-400);margin-bottom:.25rem">Nombre Completo</label><input type="text" value="${attr(formClient.nombre)}" oninput="hNombre(this.value)" style="width:100%;background:var(--slate-900);border:1px solid var(--slate-700);color:var(--slate-100);padding:.625rem;border-radius:.5rem;font-size:.875rem;outline:none" placeholder="Ej. Juan P\u00e9rez"></div>
+                <div><label style="display:block;font-size:.75rem;color:var(--slate-400);margin-bottom:.25rem">WhatsApp (Internacional)</label><input type="text" value="${attr(formClient.telefono)}" oninput="hTelefono(this.value)" style="width:100%;background:var(--slate-900);border:1px solid var(--slate-700);color:var(--slate-100);padding:.625rem;border-radius:.5rem;font-size:.875rem;outline:none;font-family:'SF Mono',Consolas,'Courier New',monospace" placeholder="584241234567"></div>
+              </div>
+              <div><label style="display:block;font-size:.75rem;color:var(--slate-400);margin-bottom:.25rem">Correo Electr\u00f3nico (Opcional)</label><input type="email" value="${attr(formClient.email)}" oninput="hEmail(this.value)" style="width:100%;background:var(--slate-900);border:1px solid var(--slate-700);color:var(--slate-100);padding:.625rem;border-radius:.5rem;font-size:.875rem;outline:none" placeholder="juan@ejemplo.com"></div>
+            </div>`:`
+            <div style="padding:1rem;border-radius:.75rem;border:1px solid var(--slate-750);background:rgba(15,23,42,0.6);display:flex;justify-content:space-between;align-items:center">
+              <div><p style="font-size:.875rem;font-weight:700;color:var(--slate-100)">${html(formClient.nombre)}</p><p style="font-size:.75rem;color:var(--slate-400);margin-top:.25rem;font-family:'SF Mono',Consolas,'Courier New',monospace">C\u00e9dula: ${html(formClient.cedula)}</p><p style="font-size:.75rem;color:var(--slate-400);margin-top:.125rem;font-family:'SF Mono',Consolas,'Courier New',monospace">WhatsApp: ${html(formClient.telefono)}</p></div>
+              <div style="text-align:right;font-size:.6875rem;color:var(--slate-400)"><p>Total: $${a.precioTicket.toFixed(2)}</p><p style="color:var(--emerald-400);font-weight:700;margin-top:.125rem">Abonado: $${selectedTicket.montoPagado.toFixed(2)}</p><p style="color:var(--rose-400);font-weight:700;margin-top:.125rem">Resta: $${(a.precioTicket-selectedTicket.montoPagado).toFixed(2)}</p></div>
+            </div>`}
+          </section>
+
+          ${selectedTicket.estado==='disponible'?`
+          <section style="padding:1rem;border-radius:.75rem;border:1px solid rgba(42,54,72,0.7);background:rgba(15,23,42,0.3)">
+            <h4 style="font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--slate-400);margin-bottom:.75rem;display:flex;align-items:center;gap:.5rem">${icnBookmark(16)} \u00bfQu\u00e9 desea hacer?</h4>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem">
+              <button onclick="hSetAction('pagar')" style="padding:.75rem;border-radius:.75rem;border:1px solid ${formActionType==='pagar'?'var(--blue-500)':'var(--slate-700)'};font-weight:700;font-size:.75rem;background:${formActionType==='pagar'?'rgba(37,99,235,0.25)':'var(--slate-800)'};color:${formActionType==='pagar'?'#bfdbfe':'var(--slate-400)'};cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:.375rem">
+                <span>Venta Completa</span><span style="font-size:.625rem;font-weight:400;opacity:.75">Cancela todo el saldo hoy</span>
+              </button>
+              <button onclick="hSetAction('apartar')" style="padding:.75rem;border-radius:.75rem;border:1px solid ${formActionType==='apartar'?'var(--orange-500)':'var(--slate-700)'};font-weight:700;font-size:.75rem;background:${formActionType==='apartar'?'rgba(249,115,22,0.2)':'var(--slate-800)'};color:${formActionType==='apartar'?'var(--orange-300)':'var(--slate-400)'};cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:.375rem">
+                <span>Apartar Ticket</span><span style="font-size:.625rem;font-weight:400;opacity:.75">Reserva y paga abonos luego</span>
+              </button>
+            </div>
+          </section>`:''}
+
+          ${selectedTicket.estado!=='pagado'?`
+          <section style="padding:1rem;border-radius:.75rem;border:1px solid var(--slate-750);background:rgba(15,23,42,0.4)">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;padding-bottom:.5rem;border-bottom:1px solid var(--slate-700)">
+              <h4 style="font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--slate-400);display:flex;align-items:center;gap:.5rem">${icnDollar(16)} ${selectedTicket.estado==='disponible'?'3.':'2.'} Registro de Abono / Pago</h4>
+              <span style="font-size:.75rem;font-weight:700;padding:.25rem .75rem;border-radius:9999px;border:1px solid var(--blue-800);font-family:'SF Mono',Consolas,'Courier New',monospace;background:var(--blue-950);color:var(--blue-300)">${selectedTicket.estado==='disponible'?'Monto: $'+a.precioTicket.toFixed(2):'Pendiente: $'+(a.precioTicket-selectedTicket.montoPagado).toFixed(2)}</span>
+            </div>
+            <div style="margin-bottom:1rem"><label style="display:block;font-size:.75rem;color:var(--slate-400);margin-bottom:.375rem">M\u00e9todo de Pago</label>
+              <select onchange="hMetodoPago(this.value)" style="width:100%;background:var(--slate-900);border:1px solid var(--slate-700);color:var(--slate-200);padding:.625rem;border-radius:.5rem;font-size:.875rem;outline:none;font-weight:600">
+                <option value="efectivo" ${formPayment.metodo==='efectivo'?'selected':''}>Efectivo (Divisas)</option>
+                <option value="transferencia" ${formPayment.metodo==='transferencia'?'selected':''}>Transferencia / Pago M\u00f3vil</option>
+                <option value="mixto" ${formPayment.metodo==='mixto'?'selected':''}>Pago Mixto (Efectivo + Transferencia)</option>
+              </select>
+            </div>
+            <div class="payment-grid" style="gap:1rem">
+              ${formPayment.metodo==='efectivo'||formPayment.metodo==='mixto'?`
+              <div><label style="display:block;font-size:.75rem;color:var(--slate-400);margin-bottom:.25rem">Monto en Efectivo ($)</label><input type="number" step="0.01" min="0" value="${formPayment.montoEfectivo}" oninput="hPagoFld('montoEfectivo',this.value)" style="width:100%;background:var(--slate-900);border:1px solid var(--slate-700);color:var(--slate-200);padding:.625rem;border-radius:.5rem;font-size:.875rem"></div>`:''}
+              ${formPayment.metodo==='transferencia'||formPayment.metodo==='mixto'?`
+              <div><label style="display:block;font-size:.75rem;color:var(--slate-400);margin-bottom:.25rem">Monto por Transferencia ($)</label><input type="number" step="0.01" min="0" value="${formPayment.montoTransferencia}" oninput="hPagoFld('montoTransferencia',this.value)" style="width:100%;background:var(--slate-900);border:1px solid var(--slate-700);color:var(--slate-200);padding:.625rem;border-radius:.5rem;font-size:.875rem"></div>`:''}
+              ${formPayment.metodo==='transferencia'||formPayment.metodo==='mixto'?`
+              <div><label style="display:block;font-size:.75rem;color:var(--slate-400);margin-bottom:.25rem">Banco Emisor</label><input type="text" value="${attr(formPayment.banco)}" oninput="hPagoFld('banco',this.value)" placeholder="Ej: Banesco, Pago M\u00f3vil" style="width:100%;background:var(--slate-900);border:1px solid var(--slate-700);color:var(--slate-100);padding:.625rem;border-radius:.5rem;font-size:.875rem"></div>
+              <div><label style="display:block;font-size:.75rem;color:var(--slate-400);margin-bottom:.25rem">Referencia Bancaria</label><input type="text" value="${attr(formPayment.referencia)}" oninput="hPagoFld('referencia',this.value)" placeholder="Ej. 123456" style="width:100%;background:var(--slate-900);border:1px solid var(--slate-700);color:var(--slate-100);padding:.625rem;border-radius:.5rem;font-size:.875rem"></div>`:''}
+            </div>
+          </section>`:''}
+
+          ${selectedTicket.estado!=='disponible'?`
+          <section style="padding:1rem;border-radius:.75rem;border:1px solid var(--slate-800);background:rgba(15,23,42,0.1)">
+            <h4 style="font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--slate-500);margin-bottom:.5rem;display:flex;align-items:center;gap:.5rem">Historial de Abonos / Caja</h4>
+            <div style="max-height:120px;overflow-y:auto;padding-right:.25rem;display:flex;flex-direction:column;gap:.5rem">
+              ${a.transacciones.filter(tx=>tx.ticketNumero===selectedTicket.numero).map(tx=>`
+              <div style="font-size:.75rem;padding:.5rem;border-radius:.25rem;border:1px solid var(--slate-800);background:rgba(15,23,42,0.45);display:flex;justify-content:space-between;align-items:center">
+                <div><p style="font-weight:700;color:var(--slate-300);text-transform:capitalize">${html(tx.concepto||'Transacci\u00f3n')}</p><p style="font-size:.625rem;color:var(--slate-500)">${new Date(tx.fecha).toLocaleDateString()} ${new Date(tx.fecha).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}</p></div>
+                <div style="text-align:right"><span style="font-weight:700;font-family:'SF Mono',Consolas,'Courier New',monospace;color:var(--emerald-400)">$${tx.montoTotal.toFixed(2)}</span><span style="font-size:.5rem;color:var(--slate-500);text-transform:uppercase;display:block">${tx.tipoPago}</span></div>
+              </div>`).join('')}
+            </div>
+          </section>`:''}
+
+          ${errorForm?`<div style="display:flex;align-items:center;gap:.5rem;font-size:.75rem;padding:.75rem;border-radius:.5rem;background:rgba(76,5,25,0.5);border:1px solid var(--rose-800);color:var(--rose-300)">${icnAlertCircle(16)}<p>${html(errorForm)}</p></div>`:''}
+
+          <div style="display:flex;gap:.75rem;padding-top:.5rem">
+            ${selectedTicket.estado!=='disponible'?`<button onclick="hLiberar()" style="width:33.333%;font-weight:700;padding:.75rem;border-radius:.75rem;font-size:.75rem;background:rgba(76,5,25,0.4);border:1px solid var(--rose-800);color:var(--rose-300);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:.375rem">${icnTrash2(16)} Cancelar Ticket</button>`:''}
+            ${selectedTicket.estado!=='pagado'?`
+            <button onclick="hRegistrar()" style="font-weight:700;padding:.75rem;border-radius:.75rem;font-size:.75rem;display:flex;align-items:center;justify-content:center;gap:.5rem;box-shadow:0 10px 15px -3px rgba(0,0,0,0.1);border:none;cursor:pointer;flex:1;background:${selectedTicket.estado==='disponible'?(formActionType==='apartar'?'var(--orange-600)':'var(--blue-600)'):'var(--emerald-600)'};color:${selectedTicket.estado==='disponible'&&formActionType==='pagar'?'var(--slate-100)':'var(--slate-950)'}">
+              ${icnCheckCircle(16)}
+              ${selectedTicket.estado==='disponible'?(formActionType==='apartar'?'Confirmar Apartado de Ticket':'Asignar y Pagar Ticket'):'Agregar Abono a Reserva'}
+            </button>`:`
+            <button onclick="hCloseVenta()" style="flex:1;font-weight:700;padding:.75rem;border-radius:.75rem;font-size:.75rem;background:var(--slate-700);color:var(--slate-300);border:none;cursor:pointer">Cerrar Detalles del Ticket</button>`}
+          </div>
+        </div>`:`
+        <!-- CONFIRMACION -->
+        <div style="text-align:center;padding:2rem 0;display:flex;flex-direction:column;gap:1.5rem">
+          <div style="width:4rem;height:4rem;margin:0 auto 1rem;border-radius:9999px;display:flex;align-items:center;justify-content:center;border:1px solid var(--emerald-500);background:var(--emerald-950);color:var(--emerald-400)">${icnCheckCircle(40)}</div>
+          <div><h3 style="font-size:1.25rem;font-weight:700;color:var(--slate-100)">\u00a1Transacci\u00f3n Completada con \u00c9xito!</h3><p style="color:var(--slate-400);font-size:.875rem;margin-top:.25rem;max-width:24rem;margin-left:auto;margin-right:auto">El saldo y estado del ticket <strong style="color:var(--slate-200);font-family:'SF Mono',Consolas,'Courier New',monospace">#${selectedTicket.numero}</strong> han sido actualizados en la base de datos local.</p></div>
+          <div style="display:flex;flex-direction:column;gap:.75rem;padding-top:1rem;max-width:28rem;margin:0 auto">
+            <a href="${attr(successLink)}" target="_blank" rel="noopener noreferrer" style="display:inline-flex;font-weight:700;padding:.75rem 1.5rem;border-radius:.75rem;justify-content:center;align-items:center;gap:.5rem;box-shadow:0 10px 15px -3px rgba(0,0,0,0.1);background:#25D366;color:var(--white);text-decoration:none;font-size:.875rem">${icnSend(20)} Enviar Comprobante por WhatsApp</a>
+            <button onclick="hCloseVenta()" style="font-weight:700;padding:.625rem;border-radius:.75rem;font-size:.75rem;background:var(--slate-700);color:var(--slate-300);border:none;cursor:pointer">Cerrar y Volver al Tablero</button>
+          </div>
+        </div>`}
+      </div>
+    </div>
+  </div>`:''}
+
+  ${/* MODAL: CONFIRMACION */''}
+  ${customConfirm.isOpen?`
+  <div style="position:fixed;inset:0;z-index:55;padding:1rem;background:rgba(2,6,23,0.9);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center">
+    <div style="max-width:28rem;width:100%;background:var(--slate-800);border-radius:1rem;border:1px solid var(--slate-700);box-shadow:0 25px 50px -12px rgba(0,0,0,0.25);overflow:hidden;padding:1.5rem;text-align:center">
+      <div style="width:3rem;height:3rem;margin:0 auto 1rem;border-radius:9999px;display:flex;align-items:center;justify-content:center;${customConfirm.actionType==='danger'?'background:rgba(76,5,25,0.4);border:1px solid var(--rose-800);color:var(--rose-400)':'background:var(--blue-950);border:1px solid var(--blue-800);color:var(--blue-400)'}">${icnAlertCircle(24)}</div>
+      <h3 style="font-size:1.125rem;font-weight:700;color:var(--slate-100);margin-bottom:.5rem">${html(customConfirm.title)}</h3>
+      <p style="color:var(--slate-400);font-size:.875rem;margin-bottom:1.5rem;line-height:1.625">${html(customConfirm.message)}</p>
+      <div style="display:flex;gap:.75rem;font-weight:600">
+        <button onclick="hConfirmClose()" style="width:50%;padding:.625rem;border-radius:.75rem;font-size:.875rem;background:var(--slate-700);color:var(--slate-300);border:none;cursor:pointer">Cancelar</button>
+        <button onclick="hConfirmAction()" style="width:50%;padding:.625rem;border-radius:.75rem;font-size:.875rem;background:${customConfirm.actionType==='danger'?'var(--rose-600)':'var(--blue-600)'};color:var(--white);border:none;cursor:pointer">Aceptar</button>
+      </div>
+    </div>
+  </div>`:''}
+
+</div>`;
+
+  // Save form state before DOM reset
+  let savedInputs = null;
+  let savedFocus = null;
+  const activeEl = document.activeElement;
+  if (activeEl && activeEl.tagName === 'INPUT') {
+    savedFocus = {
+      placeholder: activeEl.placeholder,
+      start: activeEl.selectionStart,
+      end: activeEl.selectionEnd,
+      val: activeEl.value
+    };
+  }
+  if (isVentaModalOpen || isNuevaRifaModalOpen || customConfirm.isOpen) {
+    savedInputs = {};
+    document.querySelectorAll('#app input, #app select, #app textarea').forEach(el => {
+      const key = el.placeholder || el.name || el.id;
+      if (key) savedInputs[key] = el.value;
+    });
+  }
+
+  document.getElementById('app').innerHTML = APP;
+
+  // Restore form input values
+  if (savedInputs) {
+    document.querySelectorAll('#app input, #app select, #app textarea').forEach(el => {
+      const key = el.placeholder || el.name || el.id;
+      if (key && savedInputs[key] !== undefined) {
+        if (el.type !== 'number' || savedInputs[key] !== '') {
+          el.value = savedInputs[key];
+        }
+      }
+    });
+  }
+  // Restore focus and cursor position for search inputs
+  if (savedFocus && savedFocus.placeholder) {
+    document.querySelectorAll('#app input').forEach(el => {
+      if (el.placeholder === savedFocus.placeholder) {
+        el.focus();
+        try { el.setSelectionRange(savedFocus.start, savedFocus.end); } catch(e) {}
+      }
+    });
+  }
+
+  if (rifas.length > 0) saveData();
+}
+
+// ==== INIT ====
+loadData();
+render();
+</script>
+</body>
+</html>
