@@ -310,10 +310,30 @@ function hRegistrar() {
   rifas=rifas.map(r=>r.id===activeRifaId?{...r,tickets:r.tickets.map(t=>t.numero===selectedTicket.numero?{...t,estado:nEst,clienteId:cl.id,transaccionId:tx.id,montoPagado:nMA}:t),transacciones:[...r.transacciones,tx]}:r);
   saveData();
   const metodoStr=formPayment.metodo==='mixto'?'Mixto (Ef: $'+mE.toFixed(2)+' + Tr: $'+mT.toFixed(2)+')':formPayment.metodo==='transferencia'?'Transferencia '+formPayment.banco+' (Ref: '+formPayment.referencia+')':'Efectivo ($'+mE.toFixed(2)+')';
-  let msg='';const nl='%0A';
-  if(nEst==='pagado')msg='Hola *'+cl.nombre+'*! '+nl+nl+'Confirmamos con exito la adquisicion completa de tu numero para la rifa:'+nl+'[TROFEO] *'+a.nombre+'*'+nl+nl+'[TICKET] *Ticket Nro:* '+selectedTicket.numero+nl+'[ID] *Cedula:* '+cl.cedula+nl+'[DINERO] *Monto Total:* $'+pt.toFixed(2)+nl+'[PAGO] *Abonado Hoy:* $'+tot.toFixed(2)+nl+'[TARJETA] *Metodo:* '+metodoStr+nl+nl+'!Tu numero esta cancelado al 100%! Te deseamos la mayor de las suertes. [SUERTE]';
-  else msg='Hola *'+cl.nombre+'*! '+nl+nl+'Hemos registrado un *Apartado/Abono* para tu numero en la rifa:'+nl+'[TROFEO] *'+a.nombre+'*'+nl+nl+'[TICKET] *Ticket Nro:* '+selectedTicket.numero+nl+'[ID] *Cedula:* '+cl.cedula+nl+'[DINERO] *Precio Total:* $'+pt.toFixed(2)+nl+'[PAGO] *Abonado Hoy:* $'+tot.toFixed(2)+nl+'[GRAFICO] *Total Acumulado:* $'+nMA.toFixed(2)+nl+'[RELOJ] *Saldo Pendiente:* $'+Math.max(0,pt-nMA).toFixed(2)+nl+'[TARJETA] *Metodo:* '+metodoStr+nl+nl+'Recuerda abonar el saldo pendiente antes del sorteo. !Muchas gracias! [SUERTE]';
-  successLink='https://wa.me/'+cl.telefono+'?text='+encodeURIComponent(msg.replace(/%0A/g,'\\n'));
+  let msg='';const nl='\n';
+  if(nEst==='pagado')msg=
+    'Hola *'+cl.nombre+'*! \uD83C\uDF89'+nl+nl+
+    'Confirmamos con \u00e9xito la adquisici\u00f3n completa de tu n\u00famero para la rifa:'+nl+
+    '\uD83C\uDFC6 *'+a.nombre+'*'+nl+nl+
+    '\uD83C\uDFAB Ticket Nro: *'+selectedTicket.numero+'*'+nl+
+    '\uD83D\uDC64 C\u00e9dula: *'+cl.cedula+'*'+nl+
+    '\uD83D\uDCB0 Monto Total: *$'+pt.toFixed(2)+'*'+nl+
+    '\uD83D\uDCB5 Abonado Hoy: *$'+tot.toFixed(2)+'*'+nl+
+    '\uD83D\uDCB3 M\u00e9todo: '+metodoStr+nl+nl+
+    '\u00a1Tu n\u00famero est\u00e1 cancelado al 100%! Te deseamos la mayor de las suertes. \uD83C\uDF40';
+  else msg=
+    'Hola *'+cl.nombre+'*! \uD83C\uDF89'+nl+nl+
+    'Hemos registrado un *Apartado/Abono* para tu n\u00famero en la rifa:'+nl+
+    '\uD83C\uDFC6 *'+a.nombre+'*'+nl+nl+
+    '\uD83C\uDFAB Ticket Nro: *'+selectedTicket.numero+'*'+nl+
+    '\uD83D\uDC64 C\u00e9dula: *'+cl.cedula+'*'+nl+
+    '\uD83D\uDCB0 Precio Total: *$'+pt.toFixed(2)+'*'+nl+
+    '\uD83D\uDCB5 Abonado Hoy: *$'+tot.toFixed(2)+'*'+nl+
+    '\uD83D\uDCCA Total Acumulado: *$'+nMA.toFixed(2)+'*'+nl+
+    '\u23F3 Saldo Pendiente: *$'+Math.max(0,pt-nMA).toFixed(2)+'*'+nl+
+    '\uD83D\uDCB3 M\u00e9todo: '+metodoStr+nl+nl+
+    'Recuerda abonar el saldo pendiente antes del sorteo. \u00a1Muchas gracias! \uD83C\uDF40';
+  successLink='https://wa.me/'+cl.telefono+'?text='+encodeURIComponent(msg);
   selectedTicket={...selectedTicket,estado:nEst,montoPagado:nMA,clienteId:cl.id};render()
 }
 
