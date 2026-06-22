@@ -836,7 +836,7 @@ function render() {
 
 // ==== LOTTERY INTEGRATION ====
 const LOTTERY_API = 'https://tripletachira.com/pruebah.php';
-const CORS_PROXIES = ['https://api.allorigins.win/raw?url=','https://corsproxy.io/?url=','https://api.allorigins.win/get?url='];
+const CORS_PROXIES = ['https://corsproxy.io/?url=','https://api.allorigins.win/raw?url=','https://api.allorigins.win/get?url='];
 const DRAW_COLORS={A:'#00ff88',B:'#ff3333',ZODI:'#60a5fa'};
 const DRAW_LABELS={A:'T\u00e1chira A',B:'T\u00e1chira B',ZODI:'Zodiacal'};
 
@@ -929,7 +929,7 @@ async function checkRaffleWinner(rifa) {
     try{text=await(await fetch(url,{mode:'cors'})).text()}catch(e){}
     if(!text||(!text.includes('\t')&&!text.includes('<table'))){
       for(const p of CORS_PROXIES){
-        try{text=await(await fetch(p+encodeURIComponent(url))).text();if(text&&(text.includes('\t')||text.includes('<table')))break}catch(e){}
+        try{const ac=new AbortController();setTimeout(()=>ac.abort(),8000);text=await(await fetch(p+encodeURIComponent(url),{signal:ac.signal})).text();if(text&&(text.includes('\t')||text.includes('<table')))break}catch(e){}
       }
     }
     if(!text||(!text.includes('\t')&&!text.includes('<table')))return;
