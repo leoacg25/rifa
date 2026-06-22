@@ -855,21 +855,21 @@ function dayName(d) {
   return ['Domingo','Lunes','Martes','Miercole','Jueves','Viernes','Sabado'][d.getDay()];
 }
 
-function parseLotteryTable(text, dateStr, timeSlot, draw) {
-  const rows=text.split('\n').filter(r=>r.trim());
-  if(!rows.length)return null;
-  const headers=rows[0].split('\t').map(h=>h.trim());
-  const dayLabel=dayName(new Date(dateStr));
-  const dayCol=headers.findIndex(h=>h.startsWith(dayLabel));
-  if(dayCol<0)return null;
-  const rowKey=timeSlot+' '+draw;
-  for(let i=1;i<rows.length;i++){
-    const cols=rows[i].split('\t');
-    if(cols[0].trim()===rowKey){
-      const val=(cols[dayCol]||'').trim();
-      if(!val||val==='--------'||val==='')return null;
-      const m=val.match(/(\d{3,4})/);
-      return m?parseInt(m[1],10):null;
+function parseLotteryTable(html, dateStr, timeSlot, draw) {
+  const d=new DOMParser().parseFromString(html,'text/html');
+  const t=d.querySelector('table');if(!t)return null;
+  const r=t.querySelectorAll('tr');if(r.length<2)return null;
+  const dl=dayName(new Date(dateStr)),hd=r[0].querySelectorAll('th');
+  let dc=-1;for(let i=0;i<hd.length;i++){if(hd[i].textContent.replace(/\s+/g,'').startsWith(dl)){dc=i;break}}
+  if(dc<0)return null;
+  const tk=timeSlot+' '+draw;
+  for(let i=1;i<r.length;i++){
+    const th=r[i].querySelector('th');if(!th)continue;
+    if(th.textContent.replace(/\s+/g,' ').trim()===tk){
+      const c=r[i].querySelectorAll('td')[dc-1];if(!c)return null;
+      const v=c.textContent.replace(/\s+/g,' ').trim();
+      if(!v||v.startsWith('---'))return null;
+      const m=v.match(/(\d{3,4})/);return m?parseInt(m[1],10):null
     }
   }
   return null;
@@ -927,12 +927,12 @@ async function checkRaffleWinner(rifa) {
   try {
     let text='';
     try{text=await(await fetch(url,{mode:'cors'})).text()}catch(e){}
-    if(!text||text.includes('<')||!text.includes('\t')){
+    if(!text||(!text.includes('\t')&&!text.includes('<table'))){
       for(const p of CORS_PROXIES){
-        try{text=await(await fetch(p+encodeURIComponent(url))).text();if(text&&!text.includes('<')&&text.includes('\t'))break}catch(e){}
+        try{text=await(await fetch(p+encodeURIComponent(url))).text();if(text&&(text.includes('\t')||text.includes('<table')))break}catch(e){}
       }
     }
-    if(!text||text.includes('<')||!text.includes('\t'))return;
+    if(!text||(!text.includes('\t')&&!text.includes('<table')))return;
     const dateStr=fmtDate(refDate);
     for(const draw of cfg.draws){
       const result=parseLotteryTable(text,dateStr,cfg.timeSlot,draw.name);
