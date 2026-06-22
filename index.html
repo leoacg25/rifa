@@ -173,10 +173,11 @@ function icnChevronsLeft(s) { return icon('<polyline points="11 17 6 12 11 7"/><
 function icnChevronsRight(s) { return icon('<polyline points="13 17 18 12 13 7"/><polyline points="6 17 11 12 6 7"/>', s, s); }
 function icnBookmark(s) { return icon('<path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>', s, s); }
 function icnCreditCard(s) { return icon('<rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/>', s, s); }
+function icnEdit(s) { return icon('<path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>', s, s); }
 
 // ==== STATE ====
 let rifas = [], activeRifaId = '', clientes = [];
-let isVentaModalOpen = false, isNuevaRifaModalOpen = false, selectedTicket = null;
+let isVentaModalOpen = false, isNuevaRifaModalOpen = false, editingRifaId = null, selectedTicket = null;
 let customConfirm = { isOpen: false, title: '', message: '', onConfirm: null, actionType: 'danger' };
 let ticketSearch = '', ticketFilter = 'all', selectedClientFilterId = '', clientSearch = '', currentPage = 1;
 let formRifa = { nombre: '', precio: 5, desde: 1, hasta: 100, lotteryEnabled: false, lotteryTimeSlot: '10:10', lotteryDraws: ['A'], lotteryEndDate: '', lotteryEndType: 'date' };
@@ -251,8 +252,20 @@ function hOpenVenta(num) {
 }
 
 function hCloseVenta() { isVentaModalOpen=false;selectedTicket=null;errorForm='';successLink='';render() }
-function hOpenNewRifa() { isNuevaRifaModalOpen=true;formRifa={nombre:'',precio:5,desde:1,hasta:100,lotteryEnabled:false,lotteryTimeSlot:'10:10',lotteryDraws:['A'],lotteryEndDate:'',lotteryEndType:'date'};errorForm='';render() }
-function hCloseNewRifa() { isNuevaRifaModalOpen=false;errorForm='';render() }
+function hOpenNewRifa() { editingRifaId=null;isNuevaRifaModalOpen=true;formRifa={nombre:'',precio:5,desde:1,hasta:100,lotteryEnabled:false,lotteryTimeSlot:'10:10',lotteryDraws:['A'],lotteryEndDate:'',lotteryEndType:'date'};errorForm='';render() }
+function hEditRifa(id) {
+  const r=rifas.find(x=>x.id===id);if(!r)return;
+  editingRifaId=id;
+  const lc=r.lotteryConfig;
+  formRifa={
+    nombre:r.nombre,precio:r.precioTicket,desde:r.desde,hasta:r.hasta,
+    lotteryEnabled:!!lc,lotteryTimeSlot:lc?lc.timeSlot:'10:10',
+    lotteryDraws:lc?lc.draws.map(d=>d.name):['A'],
+    lotteryEndDate:lc?lc.endDate||'':'',lotteryEndType:lc?lc.endType:'date'
+  };
+  isNuevaRifaModalOpen=true;errorForm='';render()
+}
+function hCloseNewRifa() { editingRifaId=null;isNuevaRifaModalOpen=false;errorForm='';render() }
 function hConfirmClose() { customConfirm.isOpen=false;render() }
 function hConfirmAction() { if(customConfirm.onConfirm)customConfirm.onConfirm() }
 
@@ -352,12 +365,25 @@ function hCrearRifa(e) {
   if(pr<=0){errorForm='El precio del ticket debe ser mayor a 0.';render();return}
   const pad=en.toString().length,gt=[];
   for(let i=s;i<=en;i++)gt.push({numero:i.toString().padStart(pad,'0'),estado:'disponible',clienteId:null,transaccionId:null,montoPagado:0});
-  const nr={id:crypto.randomUUID(),nombre:formRifa.nombre,precioTicket:pr,desde:s,hasta:en,padLength:pad,tickets:gt,transacciones:[]};
-  if(formRifa.lotteryEnabled&&formRifa.lotteryDraws.length>0){
-    const draws=formRifa.lotteryDraws.map(d=>({name:d,lotteryResult:null,winnerTicket:null,winnerClientId:null,winnerClientName:null}));
-    nr.lotteryConfig={enabled:true,timeSlot:formRifa.lotteryTimeSlot,draws,endType:formRifa.lotteryEndType,endDate:formRifa.lotteryEndDate,winnerChecked:false};
+  if(editingRifaId){
+    rifas=rifas.map(r=>{
+      if(r.id!==editingRifaId)return r;
+      const u={...r,nombre:formRifa.nombre,precioTicket:pr};
+      if(formRifa.lotteryEnabled&&formRifa.lotteryDraws.length>0){
+        const draws=formRifa.lotteryDraws.map(d=>({name:d,lotteryResult:null,winnerTicket:null,winnerClientId:null,winnerClientName:null}));
+        u.lotteryConfig={enabled:true,timeSlot:formRifa.lotteryTimeSlot,draws,endType:formRifa.lotteryEndType,endDate:formRifa.lotteryEndDate,winnerChecked:false};
+      }else delete u.lotteryConfig;
+      return u;
+    });
+  }else{
+    const nr={id:crypto.randomUUID(),nombre:formRifa.nombre,precioTicket:pr,desde:s,hasta:en,padLength:pad,tickets:gt,transacciones:[]};
+    if(formRifa.lotteryEnabled&&formRifa.lotteryDraws.length>0){
+      const draws=formRifa.lotteryDraws.map(d=>({name:d,lotteryResult:null,winnerTicket:null,winnerClientId:null,winnerClientName:null}));
+      nr.lotteryConfig={enabled:true,timeSlot:formRifa.lotteryTimeSlot,draws,endType:formRifa.lotteryEndType,endDate:formRifa.lotteryEndDate,winnerChecked:false};
+    }
+    rifas=[...rifas,nr];activeRifaId=nr.id;
   }
-  rifas=[...rifas,nr];activeRifaId=nr.id;isNuevaRifaModalOpen=false;formRifa={nombre:'',precio:5,desde:1,hasta:100,lotteryEnabled:false,lotteryTimeSlot:'10:10',lotteryDraws:['A'],lotteryEndDate:'',lotteryEndType:'date'};errorForm='';saveData();render()
+  editingRifaId=null;isNuevaRifaModalOpen=false;formRifa={nombre:'',precio:5,desde:1,hasta:100,lotteryEnabled:false,lotteryTimeSlot:'10:10',lotteryDraws:['A'],lotteryEndDate:'',lotteryEndType:'date'};errorForm='';saveData();render()
 }
 
 // ==== RENDER ====
@@ -415,6 +441,7 @@ function render() {
               </div>
               <div style="display:flex;align-items:center;gap:.375rem;flex-shrink:0">
                 ${lc?.enabled&&lc.winnerChecked&&lc.draws.some(d=>d.winnerTicket)?`<span style="font-size:.5rem;font-weight:800;padding:.175rem .5rem;border-radius:9999px;background:rgba(251,191,36,0.2);border:1px solid var(--amber-400);color:var(--amber-400)">\uD83C\uDFC6 Ganador</span>`:`<span style="font-size:.625rem;font-weight:700;padding:.125rem .5rem;border-radius:9999px;background:var(--slate-700);color:var(--slate-300)">${r.tickets.length} Nros</span>`}
+                <button onclick="event.stopPropagation();hEditRifa('${r.id}')" style="color:var(--slate-500);padding:.25rem;border-radius:.25rem;background:none;border:none;cursor:pointer" title="Editar Rifa">${icnEdit(14)}</button>
                 <button onclick="event.stopPropagation();hBorrarRifa('${r.id}')" style="color:var(--slate-500);padding:.25rem;border-radius:.25rem;background:none;border:none;cursor:pointer" title="Eliminar Rifa">${icnTrash2(14)}</button>
               </div>
             </div>
@@ -558,14 +585,14 @@ function render() {
   <div style="position:fixed;inset:0;z-index:50;padding:1rem;background:rgba(2,6,23,0.8);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center">
     <div style="max-width:28rem;width:100%;background:var(--slate-800);border-radius:1rem;border:1px solid var(--slate-700);box-shadow:0 25px 50px -12px rgba(0,0,0,0.25);overflow:hidden">
       <div style="padding:1.25rem;border-bottom:1px solid var(--slate-700);background:rgba(30,41,59,0.5);display:flex;justify-content:space-between;align-items:center">
-        <h3 style="font-size:1.125rem;font-weight:700;color:var(--slate-100);display:flex;align-items:center;gap:.5rem">${icnPlus(20)} Crear Nuevo Sorteo</h3>
+        <h3 style="font-size:1.125rem;font-weight:700;color:var(--slate-100);display:flex;align-items:center;gap:.5rem">${editingRifaId?icnEdit(20):icnPlus(20)} ${editingRifaId?'Editar Talonario':'Crear Nuevo Sorteo'}</h3>
         <button onclick="hCloseNewRifa()" style="color:var(--slate-400);background:none;border:none;cursor:pointer;font-size:1.25rem">\u2715</button>
       </div>
       <form onsubmit="hCrearRifa(event)" style="padding:1.5rem;display:flex;flex-direction:column;gap:1.25rem">
         <div><label style="display:block;font-size:.75rem;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--slate-400);margin-bottom:.375rem">Nombre de la Rifa</label><input type="text" required value="${attr(formRifa.nombre)}" oninput="formRifa={...formRifa,nombre:this.value}" style="width:100%;background:var(--slate-900);border:1px solid var(--slate-700);color:var(--slate-100);padding:.625rem;border-radius:.5rem;font-size:.875rem;outline:none" placeholder="Ej: Rifa Pro-Fondos Moto Suzuki"></div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">
-          <div><label style="display:block;font-size:.75rem;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--slate-400);margin-bottom:.375rem">Ticket Desde</label><input type="number" required min="0" value="${formRifa.desde}" oninput="formRifa={...formRifa,desde:this.value}" style="width:100%;background:var(--slate-900);border:1px solid var(--slate-700);color:var(--slate-100);padding:.625rem;border-radius:.5rem;font-size:.875rem;outline:none"></div>
-          <div><label style="display:block;font-size:.75rem;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--slate-400);margin-bottom:.375rem">Ticket Hasta</label><input type="number" required min="1" value="${formRifa.hasta}" oninput="formRifa={...formRifa,hasta:this.value}" style="width:100%;background:var(--slate-900);border:1px solid var(--slate-700);color:var(--slate-100);padding:.625rem;border-radius:.5rem;font-size:.875rem;outline:none"></div>
+          <div><label style="display:block;font-size:.75rem;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--slate-400);margin-bottom:.375rem">Ticket Desde</label><input type="number" required min="0" value="${formRifa.desde}" ${editingRifaId?'disabled':''} oninput="formRifa={...formRifa,desde:this.value}" style="width:100%;background:var(--slate-900);border:1px solid var(--slate-700);color:var(--slate-100);padding:.625rem;border-radius:.5rem;font-size:.875rem;outline:none${editingRifaId?';opacity:.6':''}"></div>
+          <div><label style="display:block;font-size:.75rem;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--slate-400);margin-bottom:.375rem">Ticket Hasta</label><input type="number" required min="1" value="${formRifa.hasta}" ${editingRifaId?'disabled':''} oninput="formRifa={...formRifa,hasta:this.value}" style="width:100%;background:var(--slate-900);border:1px solid var(--slate-700);color:var(--slate-100);padding:.625rem;border-radius:.5rem;font-size:.875rem;outline:none${editingRifaId?';opacity:.6':''}"></div>
         </div>
         <div><label style="display:block;font-size:.75rem;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--slate-400);margin-bottom:.375rem">Precio de Ticket ($ USD)</label><div style="position:relative"><span style="position:absolute;left:.75rem;top:.75rem;color:var(--slate-400)">$</span><input type="number" step="0.01" min="0.10" required value="${formRifa.precio}" oninput="formRifa={...formRifa,precio:this.value}" style="width:100%;background:var(--slate-900);border:1px solid var(--slate-700);color:var(--slate-100);padding:.625rem .75rem .625rem 1.75rem;border-radius:.5rem;font-size:.875rem;outline:none"></div></div>
 
@@ -605,7 +632,7 @@ function render() {
         ${errorForm?`<div style="display:flex;align-items:center;gap:.5rem;font-size:.75rem;padding:.75rem;border-radius:.5rem;background:rgba(76,5,25,0.5);border:1px solid var(--rose-800);color:var(--rose-300)">${icnAlertCircle(16)}<p>${html(errorForm)}</p></div>`:''}
         <div style="display:flex;gap:.75rem;padding-top:.5rem">
           <button type="button" onclick="hCloseNewRifa()" style="width:50%;font-weight:700;padding:.625rem;border-radius:.75rem;font-size:.875rem;background:var(--slate-700);color:var(--slate-300);border:none;cursor:pointer">Cancelar</button>
-          <button type="submit" style="width:50%;font-weight:700;padding:.625rem;border-radius:.75rem;font-size:.875rem;background:var(--blue-600);color:var(--white);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:.5rem">Crear Talonario</button>
+          <button type="submit" style="width:50%;font-weight:700;padding:.625rem;border-radius:.75rem;font-size:.875rem;background:var(--blue-600);color:var(--white);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:.5rem">${editingRifaId?'Guardar Cambios':'Crear Talonario'}</button>
         </div>
       </form>
     </div>
