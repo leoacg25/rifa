@@ -179,7 +179,7 @@ let rifas = [], activeRifaId = '', clientes = [];
 let isVentaModalOpen = false, isNuevaRifaModalOpen = false, selectedTicket = null;
 let customConfirm = { isOpen: false, title: '', message: '', onConfirm: null, actionType: 'danger' };
 let ticketSearch = '', ticketFilter = 'all', selectedClientFilterId = '', clientSearch = '', currentPage = 1;
-let formRifa = { nombre: '', precio: 5, desde: 1, hasta: 100, lotteryEnabled: false, lotteryTimeSlot: '10:10', lotteryDraw: 'A', lotteryEndDate: '' };
+let formRifa = { nombre: '', precio: 5, desde: 1, hasta: 100, lotteryEnabled: false, lotteryTimeSlot: '10:10', lotteryDraws: ['A'], lotteryEndDate: '', lotteryEndType: 'date' };
 let formActionType = 'pagar';
 let formClient = { cedula: '', nombre: '', telefono: '58', email: '' };
 let formPayment = { metodo: 'efectivo', montoEfectivo: 5, montoTransferencia: 0, banco: '', referencia: '' };
@@ -251,7 +251,7 @@ function hOpenVenta(num) {
 }
 
 function hCloseVenta() { isVentaModalOpen=false;selectedTicket=null;errorForm='';successLink='';render() }
-function hOpenNewRifa() { isNuevaRifaModalOpen=true;formRifa={nombre:'',precio:5,desde:1,hasta:100,lotteryEnabled:false,lotteryTimeSlot:'10:10',lotteryDraw:'A',lotteryEndDate:''};errorForm='';render() }
+function hOpenNewRifa() { isNuevaRifaModalOpen=true;formRifa={nombre:'',precio:5,desde:1,hasta:100,lotteryEnabled:false,lotteryTimeSlot:'10:10',lotteryDraws:['A'],lotteryEndDate:'',lotteryEndType:'date'};errorForm='';render() }
 function hCloseNewRifa() { isNuevaRifaModalOpen=false;errorForm='';render() }
 function hConfirmClose() { customConfirm.isOpen=false;render() }
 function hConfirmAction() { if(customConfirm.onConfirm)customConfirm.onConfirm() }
@@ -353,10 +353,11 @@ function hCrearRifa(e) {
   const pad=en.toString().length,gt=[];
   for(let i=s;i<=en;i++)gt.push({numero:i.toString().padStart(pad,'0'),estado:'disponible',clienteId:null,transaccionId:null,montoPagado:0});
   const nr={id:crypto.randomUUID(),nombre:formRifa.nombre,precioTicket:pr,desde:s,hasta:en,padLength:pad,tickets:gt,transacciones:[]};
-  if(formRifa.lotteryEnabled&&formRifa.lotteryEndDate){
-    nr.lotteryConfig={enabled:true,timeSlot:formRifa.lotteryTimeSlot,draw:formRifa.lotteryDraw,endDate:formRifa.lotteryEndDate,winnerChecked:false,winnerTicket:null,winnerClientId:null,winnerClientName:null,lotteryResult:null};
+  if(formRifa.lotteryEnabled&&formRifa.lotteryDraws.length>0){
+    const draws=formRifa.lotteryDraws.map(d=>({name:d,lotteryResult:null,winnerTicket:null,winnerClientId:null,winnerClientName:null}));
+    nr.lotteryConfig={enabled:true,timeSlot:formRifa.lotteryTimeSlot,draws,endType:formRifa.lotteryEndType,endDate:formRifa.lotteryEndDate,winnerChecked:false};
   }
-  rifas=[...rifas,nr];activeRifaId=nr.id;isNuevaRifaModalOpen=false;formRifa={nombre:'',precio:5,desde:1,hasta:100,lotteryEnabled:false,lotteryTimeSlot:'10:10',lotteryDraw:'A',lotteryEndDate:''};errorForm='';saveData();render()
+  rifas=[...rifas,nr];activeRifaId=nr.id;isNuevaRifaModalOpen=false;formRifa={nombre:'',precio:5,desde:1,hasta:100,lotteryEnabled:false,lotteryTimeSlot:'10:10',lotteryDraws:['A'],lotteryEndDate:'',lotteryEndType:'date'};errorForm='';saveData();render()
 }
 
 // ==== RENDER ====
@@ -405,23 +406,25 @@ function render() {
           <button onclick="hOpenNewRifa()" style="background:var(--blue-600);padding:.375rem;border-radius:.5rem;color:var(--white);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center" title="Crear Nueva Rifa">${icnPlus(16)}</button>
         </div>
         <div style="max-height:220px;overflow-y:auto;padding-right:.25rem;display:flex;flex-direction:column;gap:.625rem">
-          ${rifas.map(r => `
+          ${rifas.map(r => {const lc=r.lotteryConfig;return`
           <div onclick="hSelectRifa('${r.id}')" style="padding:.75rem;border-radius:.75rem;border:1px solid ${activeRifaId===r.id?'var(--blue-500)':'var(--slate-700)'};background:${activeRifaId===r.id?'rgba(23,37,84,0.45)':'rgba(30,41,59,0.5)'};color:${activeRifaId===r.id?'#bfdbfe':'var(--slate-300)'};cursor:pointer;display:flex;flex-direction:column;gap:.375rem;transition:all .15s">
             <div style="display:flex;justify-content:space-between;align-items:center">
               <div style="overflow:hidden;padding-right:.5rem;flex:1">
-                <p style="font-weight:700;font-size:.875rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${r.lotteryConfig?.enabled?'\uD83C\uDFC6 ':''}${html(r.nombre)}</p>
-                <p style="font-size:.75rem;color:var(--slate-400);margin-top:.125rem">Precio: $${r.precioTicket.toFixed(2)}${r.lotteryConfig?.enabled?' | Tope: '+r.lotteryConfig.endDate:''}</p>
+                <p style="font-weight:700;font-size:.875rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${lc?.enabled?'\uD83C\uDFC6 ':''}${html(r.nombre)}</p>
+                <p style="font-size:.75rem;color:var(--slate-400);margin-top:.125rem">$${r.precioTicket.toFixed(2)}${lc?.enabled?' | '+(lc.endType==='date'?'Tope: '+lc.endDate:lc.endType==='soldout'?'Hasta vender todo':'Venta o '+lc.endDate):''}</p>
               </div>
               <div style="display:flex;align-items:center;gap:.375rem;flex-shrink:0">
-                ${hasWinner(r)?`<span style="font-size:.5rem;font-weight:800;padding:.175rem .5rem;border-radius:9999px;background:rgba(251,191,36,0.2);border:1px solid var(--amber-400);color:var(--amber-400);text-transform:uppercase;letter-spacing:.05em">\uD83C\uDFC6 Ganador</span>`:`<span style="font-size:.625rem;font-weight:700;padding:.125rem .5rem;border-radius:9999px;background:var(--slate-700);color:var(--slate-300)">${r.tickets.length} Nros</span>`}
+                ${lc?.enabled&&lc.winnerChecked&&lc.draws.some(d=>d.winnerTicket)?`<span style="font-size:.5rem;font-weight:800;padding:.175rem .5rem;border-radius:9999px;background:rgba(251,191,36,0.2);border:1px solid var(--amber-400);color:var(--amber-400)">\uD83C\uDFC6 Ganador</span>`:`<span style="font-size:.625rem;font-weight:700;padding:.125rem .5rem;border-radius:9999px;background:var(--slate-700);color:var(--slate-300)">${r.tickets.length} Nros</span>`}
                 <button onclick="event.stopPropagation();hBorrarRifa('${r.id}')" style="color:var(--slate-500);padding:.25rem;border-radius:.25rem;background:none;border:none;cursor:pointer" title="Eliminar Rifa">${icnTrash2(14)}</button>
               </div>
             </div>
-            ${r.lotteryConfig?.enabled&&!r.lotteryConfig.winnerChecked&&new Date(r.lotteryConfig.endDate+'T23:59:59')<new Date()?`
+            ${lc?.enabled&&lc.draws.map(d=>{const dc=DRAW_COLORS[d.name]||'#fff';return d.winnerTicket?`
+            <div style="font-size:.625rem;color:${dc};font-weight:600;display:flex;align-items:center;gap:.375rem;padding:.125rem 0"><span style="display:inline-block;width:.5rem;height:.5rem;border-radius:50%;background:${dc}"></span>${DRAW_LABELS[d.name]||d.name}: #${d.winnerTicket} - ${d.winnerClientName||'Desconocido'}</div>`:''}).join('')}
+            ${lc?.enabled&&!lc.winnerChecked&&isRaffleEnded(r)?`
             <div style="display:flex;gap:.375rem">
               <button onclick="event.stopPropagation();hCheckWinner('${r.id}')" style="flex:1;font-size:.625rem;padding:.25rem;border-radius:.375rem;background:rgba(251,191,36,0.15);border:1px solid rgba(251,191,36,0.4);color:var(--amber-400);cursor:pointer;font-weight:600">\uD83C\uDFC6 Verificar Ganador</button>
             </div>`:''}
-          </div>`).join('')}
+          </div>`}).join('')}
         </div>
       </div>
 
@@ -469,17 +472,19 @@ function render() {
           <p style="font-size:1.5rem;font-weight:800;color:var(--yellow-400);margin-top:.25rem;font-family:'SF Mono',Consolas,'Courier New',monospace">$${rc.toFixed(2)}</p>
           <div style="display:flex;justify-content:space-between;font-size:.5625rem;color:var(--slate-400);margin-top:.5rem"><span>Ef: $${re.toFixed(1)}</span><span>Tr: $${rt.toFixed(1)}</span></div>
         </div>
-        ${a&&hasWinner(a)?`
+        ${a&&a.lotteryConfig?.enabled&&a.lotteryConfig.winnerChecked&&a.lotteryConfig.draws.some(d=>d.winnerTicket)?`
         <div style="background:linear-gradient(135deg,rgba(251,191,36,0.15),rgba(251,191,36,0.05));padding:1rem;border-radius:.75rem;border:1px solid rgba(251,191,36,0.5);box-shadow:0 10px 15px -3px rgba(0,0,0,0.1);grid-column:1/-1">
-          <p style="font-size:.75rem;font-weight:600;color:var(--amber-400);text-transform:uppercase;letter-spacing:.05em;display:flex;align-items:center;gap:.5rem">\uD83C\uDFC6 GANADOR DE LA RIFA</p>
-          <div style="display:flex;flex-wrap:wrap;align-items:center;gap:1rem;margin-top:.5rem">
-            <div style="display:flex;align-items:center;gap:.75rem">
-              <div style="width:3rem;height:3rem;border-radius:9999px;background:rgba(251,191,36,0.2);border:2px solid var(--amber-400);display:flex;align-items:center;justify-content:center;font-size:1.25rem;font-weight:800;color:var(--amber-400);font-family:'SF Mono',Consolas,'Courier New',monospace">#${a.lotteryConfig.winnerTicket}</div>
+          <p style="font-size:.75rem;font-weight:600;color:var(--amber-400);text-transform:uppercase;letter-spacing:.05em;display:flex;align-items:center;gap:.5rem">\uD83C\uDFC6 RESULTADOS DE LA RIFA</p>
+          <div style="display:flex;flex-wrap:wrap;gap:1rem;margin-top:.5rem">
+            ${a.lotteryConfig.draws.filter(d=>d.winnerTicket).map(d=>{const dc=DRAW_COLORS[d.name]||'#fff';return`
+            <div style="display:flex;align-items:center;gap:.75rem;padding:.5rem .75rem;border-radius:.75rem;background:rgba(15,23,42,0.5);border:1px solid ${dc}40;flex:1;min-width:200px">
+              <div style="width:3rem;height:3rem;border-radius:9999px;background:${dc}20;border:2px solid ${dc};display:flex;align-items:center;justify-content:center;font-size:1.25rem;font-weight:800;color:${dc};font-family:'SF Mono',Consolas,'Courier New',monospace">#${d.winnerTicket}</div>
               <div>
-                <p style="font-size:1rem;font-weight:700;color:var(--slate-100)">${html(a.lotteryConfig.winnerClientName)}</p>
-                <p style="font-size:.75rem;color:var(--slate-400)">Resultado Triple T\u00e1chira: <strong style="color:var(--amber-400)">${a.lotteryConfig.lotteryResult}</strong> | Ticket #${a.lotteryConfig.winnerTicket}</p>
+                <p style="font-size:.875rem;font-weight:700;color:${dc}">${DRAW_LABELS[d.name]||d.name}</p>
+                <p style="font-size:1rem;font-weight:700;color:var(--slate-100)">${html(d.winnerClientName||'Desconocido')}</p>
+                <p style="font-size:.6875rem;color:var(--slate-400)">Triple: <strong style="color:${dc}">${d.lotteryResult||'?'}</strong> | Ticket #${d.winnerTicket}</p>
               </div>
-            </div>
+            </div>`}).join('')}
           </div>
         </div>`:''}
       </div>`:''}
@@ -572,18 +577,28 @@ function render() {
           </label>
           ${formRifa.lotteryEnabled?`
           <div style="margin-top:.875rem;display:flex;flex-direction:column;gap:.875rem;padding-top:.875rem;border-top:1px solid var(--slate-700)">
-            <div><label style="display:block;font-size:.75rem;color:var(--slate-400);margin-bottom:.25rem">Fecha tope del sorteo</label><input type="date" required value="${formRifa.lotteryEndDate}" oninput="formRifa={...formRifa,lotteryEndDate:this.value}" style="width:100%;background:var(--slate-900);border:1px solid var(--slate-700);color:var(--slate-100);padding:.625rem;border-radius:.5rem;font-size:.875rem;outline:none"></div>
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">
-              <div><label style="display:block;font-size:.75rem;color:var(--slate-400);margin-bottom:.25rem">Horario del sorteo</label><select onchange="formRifa={...formRifa,lotteryTimeSlot:this.value}" style="width:100%;background:var(--slate-900);border:1px solid var(--slate-700);color:var(--slate-200);padding:.625rem;border-radius:.5rem;font-size:.875rem;outline:none;font-weight:600">
+            <div><label style="display:block;font-size:.75rem;font-weight:600;color:var(--slate-400);margin-bottom:.375rem">Tipo de finalizaci\u00f3n</label>
+              <select onchange="formRifa={...formRifa,lotteryEndType:this.value}" style="width:100%;background:var(--slate-900);border:1px solid var(--slate-700);color:var(--slate-200);padding:.625rem;border-radius:.5rem;font-size:.875rem;outline:none;font-weight:600">
+                <option value="date" ${formRifa.lotteryEndType==='date'?'selected':''}>Por fecha tope</option>
+                <option value="soldout" ${formRifa.lotteryEndType==='soldout'?'selected':''}>Al completar venta</option>
+                <option value="both" ${formRifa.lotteryEndType==='both'?'selected':''}>Ambos (lo que ocurra primero)</option>
+              </select>
+            </div>
+            ${formRifa.lotteryEndType!=='soldout'?`
+            <div><label style="display:block;font-size:.75rem;color:var(--slate-400);margin-bottom:.25rem">Fecha tope del sorteo</label><input type="date" required value="${formRifa.lotteryEndDate}" oninput="formRifa={...formRifa,lotteryEndDate:this.value}" style="width:100%;background:var(--slate-900);border:1px solid var(--slate-700);color:var(--slate-100);padding:.625rem;border-radius:.5rem;font-size:.875rem;outline:none"></div>`:''}
+            <div><label style="display:block;font-size:.75rem;color:var(--slate-400);margin-bottom:.25rem">Horario del sorteo</label>
+              <select onchange="formRifa={...formRifa,lotteryTimeSlot:this.value}" style="width:100%;background:var(--slate-900);border:1px solid var(--slate-700);color:var(--slate-200);padding:.625rem;border-radius:.5rem;font-size:.875rem;outline:none;font-weight:600">
                 <option value="01:15" ${formRifa.lotteryTimeSlot==='01:15'?'selected':''}>01:15 PM</option>
                 <option value="04:45" ${formRifa.lotteryTimeSlot==='04:45'?'selected':''}>04:45 PM</option>
                 <option value="10:10" ${formRifa.lotteryTimeSlot==='10:10'?'selected':''}>10:10 PM</option>
-              </select></div>
-              <div><label style="display:block;font-size:.75rem;color:var(--slate-400);margin-bottom:.25rem">Sorteo</label><select onchange="formRifa={...formRifa,lotteryDraw:this.value}" style="width:100%;background:var(--slate-900);border:1px solid var(--slate-700);color:var(--slate-200);padding:.625rem;border-radius:.5rem;font-size:.875rem;outline:none;font-weight:600">
-                <option value="A" ${formRifa.lotteryDraw==='A'?'selected':''}>T\u00e1chira A</option>
-                <option value="B" ${formRifa.lotteryDraw==='B'?'selected':''}>T\u00e1chira B</option>
-                <option value="ZODI" ${formRifa.lotteryDraw==='ZODI'?'selected':''}>Zodiacal</option>
-              </select></div>
+              </select>
+            </div>
+            <div><label style="display:block;font-size:.75rem;font-weight:600;color:var(--slate-400);margin-bottom:.375rem">Sorteos a verificar</label>
+              <div style="display:flex;gap:.75rem;flex-wrap:wrap">
+                <label style="display:flex;align-items:center;gap:.375rem;cursor:pointer;font-size:.8125rem;color:var(--slate-200)"><input type="checkbox" ${formRifa.lotteryDraws.includes('A')?'checked':''} onchange="formRifa={...formRifa,lotteryDraws:formRifa.lotteryDraws.includes('A')?formRifa.lotteryDraws.filter(d=>d!=='A'):[...formRifa.lotteryDraws,'A']}" style="accent-color:#00ff88;width:1rem;height:1rem;cursor:pointer"><span style="color:#00ff88;font-weight:700">T\u00e1chira A</span></label>
+                <label style="display:flex;align-items:center;gap:.375rem;cursor:pointer;font-size:.8125rem;color:var(--slate-200)"><input type="checkbox" ${formRifa.lotteryDraws.includes('B')?'checked':''} onchange="formRifa={...formRifa,lotteryDraws:formRifa.lotteryDraws.includes('B')?formRifa.lotteryDraws.filter(d=>d!=='B'):[...formRifa.lotteryDraws,'B']}" style="accent-color:#ff3333;width:1rem;height:1rem;cursor:pointer"><span style="color:#ff3333;font-weight:700">T\u00e1chira B</span></label>
+                <label style="display:flex;align-items:center;gap:.375rem;cursor:pointer;font-size:.8125rem;color:var(--slate-200)"><input type="checkbox" ${formRifa.lotteryDraws.includes('ZODI')?'checked':''} onchange="formRifa={...formRifa,lotteryDraws:formRifa.lotteryDraws.includes('ZODI')?formRifa.lotteryDraws.filter(d=>d!=='ZODI'):[...formRifa.lotteryDraws,'ZODI']}" style="accent-color:#60a5fa;width:1rem;height:1rem;cursor:pointer"><span style="color:#60a5fa;font-weight:700">Zodiacal</span></label>
+              </div>
             </div>
           </div>`:''}
         </div>
@@ -767,6 +782,8 @@ function render() {
 // ==== LOTTERY INTEGRATION ====
 const LOTTERY_API = 'https://tripletachira.com/pruebah.php';
 const CORS_PROXY = 'https://api.allorigins.win/raw?url=';
+const DRAW_COLORS={A:'#00ff88',B:'#ff3333',ZODI:'#60a5fa'};
+const DRAW_LABELS={A:'T\u00e1chira A',B:'T\u00e1chira B',ZODI:'Zodiacal'};
 
 function getMonday(d) {
   d=new Date(d);const day=d.getDay(),diff=d.getDate()-day+(day===0?-6:1);
@@ -810,32 +827,61 @@ function calculateWinnerNumber(lotteryNum, desde, hasta) {
   return desde+offset-1;
 }
 
+function isRaffleEnded(rifa) {
+  const lc=rifa.lotteryConfig;
+  if(!lc||!lc.enabled)return false;
+  if(lc.endType==='date'||lc.endType==='both'){
+    if(!lc.endDate)return false;
+    const now=new Date();now.setHours(0,0,0,0);
+    const end=new Date(lc.endDate+'T23:59:59');
+    if(now<=end)return false;
+  }
+  if(lc.endType==='soldout'||lc.endType==='both'){
+    const sold=rifa.tickets.filter(t=>t.estado!=='disponible').length;
+    if(sold<rifa.tickets.length)return false;
+  }
+  return true;
+}
+
+function getRefDate(rifa) {
+  const lc=rifa.lotteryConfig;
+  if(!lc||!lc.enabled)return new Date();
+  if(lc.endType==='date'||(lc.endType==='both'&&lc.endDate)){
+    const end=new Date(lc.endDate+'T23:59:59');
+    const now=new Date();
+    return end<now?end:now;
+  }
+  return new Date();
+}
+
 async function checkRaffleWinner(rifa) {
   if(!rifa.lotteryConfig||!rifa.lotteryConfig.enabled)return;
   const cfg=rifa.lotteryConfig;
   if(cfg.winnerChecked)return;
-  const now=new Date();now.setHours(0,0,0,0);
-  const endDate=new Date(cfg.endDate+'T23:59:59');
-  if(now<=endDate)return;
-  const mon=getMonday(endDate),sun=getSunday(endDate);
+  if(!isRaffleEnded(rifa))return;
+  const refDate=getRefDate(rifa);
+  const mon=getMonday(refDate),sun=getSunday(refDate);
   const url=LOTTERY_API+'?bt='+fmtDate(mon)+'&bt2='+fmtDate(sun);
   try {
     let text='';
     try{text=await(await fetch(url,{mode:'cors'})).text()}catch(e){}
     if(!text||text.includes('<'))try{text=await(await fetch(CORS_PROXY+encodeURIComponent(url))).text()}catch(e){}
     if(!text||text.includes('<'))return;
-    const result=parseLotteryTable(text,cfg.endDate,cfg.timeSlot,cfg.draw);
-    if(result===null)return;
-    const winnerNum=calculateWinnerNumber(result,rifa.desde,rifa.hasta);
-    const pad=String(rifa.hasta).length;
-    const winnerStr=String(winnerNum).padStart(pad,'0');
-    const ticket=rifa.tickets.find(t=>t.numero===winnerStr);
-    cfg.lotteryResult=result;
-    if(ticket&&ticket.estado!=='disponible'){
-      const client=clientes.find(c=>c.id===ticket.clienteId);
-      cfg.winnerTicket=winnerStr;
-      cfg.winnerClientId=ticket.clienteId;
-      cfg.winnerClientName=client?client.nombre:'Desconocido';
+    const dateStr=fmtDate(refDate);
+    for(const draw of cfg.draws){
+      const result=parseLotteryTable(text,dateStr,cfg.timeSlot,draw.name);
+      if(result===null)continue;
+      const winnerNum=calculateWinnerNumber(result,rifa.desde,rifa.hasta);
+      const pad=String(rifa.hasta).length;
+      const winnerStr=String(winnerNum).padStart(pad,'0');
+      const ticket=rifa.tickets.find(t=>t.numero===winnerStr);
+      draw.lotteryResult=result;
+      if(ticket&&ticket.estado!=='disponible'){
+        const client=clientes.find(c=>c.id===ticket.clienteId);
+        draw.winnerTicket=winnerStr;
+        draw.winnerClientId=ticket.clienteId;
+        draw.winnerClientName=client?client.nombre:'Desconocido';
+      }
     }
     cfg.winnerChecked=true;
     saveData();render();
@@ -844,10 +890,6 @@ async function checkRaffleWinner(rifa) {
 
 async function checkAllLotteryWinners() {
   for(const r of rifas)await checkRaffleWinner(r);
-}
-
-function hasWinner(rifa) {
-  return rifa.lotteryConfig&&rifa.lotteryConfig.enabled&&rifa.lotteryConfig.winnerChecked&&rifa.lotteryConfig.winnerTicket;
 }
 
 function hCheckWinner(rifaId) {
