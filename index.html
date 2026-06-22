@@ -174,6 +174,7 @@ function icnChevronsRight(s) { return icon('<polyline points="13 17 18 12 13 7"/
 function icnBookmark(s) { return icon('<path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>', s, s); }
 function icnCreditCard(s) { return icon('<rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/>', s, s); }
 function icnEdit(s) { return icon('<path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>', s, s); }
+function icnRefresh(s) { return icon('<polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>', s, s); }
 
 // ==== STATE ====
 let rifas = [], activeRifaId = '', clientes = [];
@@ -429,7 +430,10 @@ function render() {
       <div style="background:var(--slate-800);padding:1.25rem;border-radius:1rem;border:1px solid rgba(51,65,85,0.6);box-shadow:0 20px 25px -5px rgba(0,0,0,0.1)">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem">
           <h2 style="font-weight:700;color:var(--slate-200);font-size:.75rem;letter-spacing:.05em;text-transform:uppercase">Mis Sorteos</h2>
-          <button onclick="hOpenNewRifa()" style="background:var(--blue-600);padding:.375rem;border-radius:.5rem;color:var(--white);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center" title="Crear Nueva Rifa">${icnPlus(16)}</button>
+          <div style="display:flex;gap:.375rem">
+            <button onclick="hOpenNewRifa()" style="background:var(--blue-600);padding:.375rem;border-radius:.5rem;color:var(--white);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center" title="Crear Nueva Rifa">${icnPlus(16)}</button>
+            <button onclick="checkAllLotteryWinners()" style="background:var(--slate-700);padding:.375rem;border-radius:.5rem;color:var(--amber-400);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center" title="Verificar loter\u00eda ahora">${icnRefresh(16)}</button>
+          </div>
         </div>
         <div style="max-height:220px;overflow-y:auto;padding-right:.25rem;display:flex;flex-direction:column;gap:.625rem">
           ${rifas.map(r => {const lc=r.lotteryConfig;return`
