@@ -432,7 +432,7 @@ function render() {
           <h2 style="font-weight:700;color:var(--slate-200);font-size:.75rem;letter-spacing:.05em;text-transform:uppercase">Mis Sorteos</h2>
           <div style="display:flex;gap:.375rem">
             <button onclick="hOpenNewRifa()" style="background:var(--blue-600);padding:.375rem;border-radius:.5rem;color:var(--white);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center" title="Crear Nueva Rifa">${icnPlus(16)}</button>
-            <button onclick="checkAllLotteryWinners()" style="background:var(--slate-700);padding:.375rem;border-radius:.5rem;color:var(--amber-400);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center" title="Verificar loter\u00eda ahora">${icnRefresh(16)}</button>
+            <button onclick="rifas.forEach(r=>{if(r.lotteryConfig)r.lotteryConfig.winnerChecked=false});checkAllLotteryWinners()" style="background:var(--slate-700);padding:.375rem;border-radius:.5rem;color:var(--amber-400);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center" title="Verificar loter\u00eda ahora">${icnRefresh(16)}</button>
           </div>
         </div>
         <div style="max-height:220px;overflow-y:auto;padding-right:.25rem;display:flex;flex-direction:column;gap:.625rem">
@@ -885,11 +885,18 @@ function calculateWinnerNumber(lotteryNum, desde, hasta) {
 function isRaffleEnded(rifa) {
   const lc=rifa.lotteryConfig;
   if(!lc||!lc.enabled)return false;
+  const now=new Date();
   if(lc.endType==='date'||lc.endType==='both'){
     if(!lc.endDate)return false;
-    const now=new Date();now.setHours(0,0,0,0);
+    const today=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0')+'-'+String(now.getDate()).padStart(2,'0');
+    if(lc.endDate===today&&lc.timeSlot){
+      const [h,m]=lc.timeSlot.split(':').map(Number);
+      const drawTime=new Date();drawTime.setHours(h,m,0,0);
+      if(now>=drawTime)return true;
+    }
+    const dayStart=new Date();dayStart.setHours(0,0,0,0);
     const end=new Date(lc.endDate+'T23:59:59');
-    if(now<=end)return false;
+    if(dayStart<=end)return false;
   }
   if(lc.endType==='soldout'||lc.endType==='both'){
     const sold=rifa.tickets.filter(t=>t.estado!=='disponible').length;
