@@ -859,7 +859,8 @@ function parseLotteryTable(html, dateStr, timeSlot, draw) {
   const d=new DOMParser().parseFromString(html,'text/html');
   const t=d.querySelector('table');if(!t)return null;
   const r=t.querySelectorAll('tr');if(r.length<2)return null;
-  const dl=dayName(new Date(dateStr)),hd=r[0].querySelectorAll('th');
+  const p=dateStr.split('/'),ref=new Date(p[2],p[1]-1,p[0]);
+  const dl=dayName(ref),hd=r[0].querySelectorAll('th');
   let dc=-1;for(let i=0;i<hd.length;i++){if(hd[i].textContent.replace(/\s+/g,'').startsWith(dl)){dc=i;break}}
   if(dc<0)return null;
   const tk=timeSlot+' '+draw;
